@@ -1,3 +1,3 @@
 # summarizor
 
-A new Flutter project.
+an app to summarize lessons using AI
