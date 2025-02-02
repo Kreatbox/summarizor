@@ -1,4 +1,4 @@
-package com.example.summarizor
+package com.kreators.summarizor
 
 import io.flutter.embedding.android.FlutterActivity
 

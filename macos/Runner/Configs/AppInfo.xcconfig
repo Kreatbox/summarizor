@@ -8,7 +8,7 @@
 PRODUCT_NAME = summarizor
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.summarizor
+PRODUCT_BUNDLE_IDENTIFIER = com.kreators.summarizor
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2024 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 com.kreators. All rights reserved.
