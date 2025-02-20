@@ -14,7 +14,21 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
+  cupertino_icons: ^1.0.8
+  smooth_page_indicator: ^1.2.0+3
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/
+
+  fonts:
+    - family: poppinsBold
+      fonts:
+        - asset: assets/fonts/Poppins-Bold.ttf
+
+    - family: poppinsreg
+      fonts:
+        - asset: assets/fonts/Poppins-Medium.ttf
