@@ -18,11 +18,26 @@ class TextFormStyle {
     color: PrimaryColor,
 
   );
+
+    static TextStyle textObboardtitle3 = TextStyle(
+    fontFamily: 'poppinsBold',
+    fontSize: 15.f,
+    fontWeight: FontWeight.w400,
+    color: PrimaryColor,
+
+  );
   static TextStyle textObboardDesc = TextStyle(
     fontFamily: 'poppinsBold',
     fontSize: 15.f,
     fontWeight: FontWeight.w400,
     color: Colorapp.grey,
+
+  );
+  static TextStyle textObboardDescblack = TextStyle(
+    fontFamily: 'poppinsBold',
+    fontSize: 15.f,
+    fontWeight: FontWeight.w400,
+    color: Colorapp.black,
 
   );
 

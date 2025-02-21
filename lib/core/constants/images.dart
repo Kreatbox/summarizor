@@ -15,4 +15,7 @@ class Images{
   //Register
   static String base = 'assets/images/BASE2.png';
 
+    //Signup
+  static String base1 = 'assets/images/icon1.png';
+
 }
