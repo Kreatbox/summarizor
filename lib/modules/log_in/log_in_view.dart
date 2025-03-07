@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:summarizor/core/services/responsive.dart';
 import '../../core/constants/images.dart';
 import 'package:summarizor/core/constants/color.dart';
 import 'package:summarizor/core/constants/text_style.dart';
 
-class Signup extends StatefulWidget {
-  const Signup({super.key});
+class LogInView extends StatefulWidget {
+  const LogInView({super.key});
+
   @override
-  State<Signup> createState() => _SignupState();
+  State<LogInView> createState() => _LogInViewState();
 }
-class _SignupState extends State<Signup> {
-    bool _obscureText = true;
+
+class _LogInViewState extends State<LogInView> {
+  bool _obscureText = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,32 +20,26 @@ class _SignupState extends State<Signup> {
         child: Stack(
           children: [
             Image.asset(
-              Images.base, 
+              Images.base,
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
             ),
-
             Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w,vertical: 30.h),
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
                     Images.base1,
-                  width: 93,
-  height: 102,
+                    width: 93,
+                    height: 102,
                   ),
-
                   const SizedBox(height: 60),
-//****** */
-                  _buildTextField("Fullname"),
-                  const SizedBox(height: 16),
                   _buildTextField("Email"),
                   const SizedBox(height: 16),
                   _buildPasswordField(),
-                  const SizedBox(height: 60),
-//****** */
+                  const SizedBox(height: 40),
 
                   SizedBox(
                     width: double.infinity,
@@ -52,30 +48,32 @@ class _SignupState extends State<Signup> {
                       onPressed: () {
                       },
                       style: ElevatedButton.styleFrom(
-                backgroundColor: PrimaryColor,
+                        backgroundColor: PrimaryColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       child: Text(
-                        "Sign Up", 
-style: TextFormStyle.textObboardDescblack,
+                        "Log In",
+                        style: TextFormStyle.textObboardDescblack,
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Already have an account?", 
+                        "Don't have an account?",
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, "/log_in_view");
+                          Navigator.pushNamed(context, "/signup");
                         },
                         child: Text(
-                          "Log In",style: TextFormStyle.textObboardtitle3,
+                          "Sign Up",
+                          style: TextFormStyle.textObboardtitle3,
                         ),
                       ),
                     ],
@@ -95,7 +93,7 @@ style: TextFormStyle.textObboardDescblack,
         labelText: label,
         labelStyle: TextFormStyle.textfield,
         filled: true,
-fillColor: Color(0x1A6BB5B8),
+        fillColor:  Color(0x1A6BB5B8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
@@ -106,25 +104,25 @@ fillColor: Color(0x1A6BB5B8),
 
   Widget _buildPasswordField() {
     return TextField(
+      obscureText: _obscureText,
       decoration: InputDecoration(
         labelText: "Password",
         labelStyle: TextFormStyle.textfield,
         filled: true,
-fillColor: Color(0x1A6BB5B8),
+        fillColor:  Color(0x1A6BB5B8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
-          
-        ), 
-suffixIcon: IconButton(
+        ),
+        suffixIcon: IconButton(
           icon: Icon(
-            _obscureText ? Icons.visibility_off : Icons.visibility, // تبديل الرمز
-            color: Color(0xFF6BB5B8), // اللون المحدد
+            _obscureText ? Icons.visibility_off : Icons.visibility,
+            color:  Color(0xFF6BB5B8),
           ),
           onPressed: () {
             setState(() {
-              _obscureText = !_obscureText; // تغيير الحالة بين الإخفاء والإظهار
-           });
+              _obscureText = !_obscureText;
+            });
           },
         ),
       ),

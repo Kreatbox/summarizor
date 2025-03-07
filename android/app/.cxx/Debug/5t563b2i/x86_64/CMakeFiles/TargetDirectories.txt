@@ -1,0 +1,2 @@
+C:/Users/Lubna/Desktop/iithar-master/summarizor/android/app/.cxx/Debug/5t563b2i/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/Lubna/Desktop/iithar-master/summarizor/android/app/.cxx/Debug/5t563b2i/x86_64/CMakeFiles/rebuild_cache.dir
