@@ -16,6 +16,9 @@ class Navigation {
     );
   }
 
+  static void pop_(BuildContext context) {
+    Navigator.pop(context);
+  }
   static void goBack(BuildContext context) {
     if (Navigator.canPop(context)) {
       Navigator.pop(context);

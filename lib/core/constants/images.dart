@@ -16,6 +16,13 @@ class Images{
   static String base = 'assets/images/BASE2.png';
 
     //Signup
-  static String base1 = 'assets/images/icon1.png';
+  static String base1 = 'assets/images/a.png';
+
+  //homescreen
+  static String base3 = 'assets/images/base3.png';
+  static String sidebar = 'assets/images/sidebar.png';
+
+  static const summarizeImage = 'assets/images/summarize.png';
+  static const quizImage = 'assets/images/quiz.png';
 
 }

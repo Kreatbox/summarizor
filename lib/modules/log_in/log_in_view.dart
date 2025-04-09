@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../../core/constants/images.dart';
 import 'package:summarizor/core/constants/color.dart';
 import 'package:summarizor/core/constants/text_style.dart';
+import 'package:summarizor/core/services/responsive.dart';
 
+import '../../core/services/navigation.dart';
+import '../home_screen/homes_screen.dart';
 class LogInView extends StatefulWidget {
   const LogInView({super.key});
 
@@ -22,8 +25,8 @@ class _LogInViewState extends State<LogInView> {
             Image.asset(
               Images.base,
               fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
+              width: 412.w,
+
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
@@ -32,20 +35,21 @@ class _LogInViewState extends State<LogInView> {
                 children: [
                   Image.asset(
                     Images.base1,
-                    width: 93,
-                    height: 102,
+                    width: 93.w,
+                    height: 102.h,
                   ),
-                  const SizedBox(height: 60),
+                   SizedBox(height: 60.h),
                   _buildTextField("Email"),
-                  const SizedBox(height: 16),
+                   SizedBox(height: 16.h),
                   _buildPasswordField(),
-                  const SizedBox(height: 40),
+                   SizedBox(height: 40.h),
 
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
+                        Navigation.navigateAndRemove( context, HomesScreen());
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: PrimaryColor,
@@ -60,7 +64,7 @@ class _LogInViewState extends State<LogInView> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                   SizedBox(height: 16.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -95,7 +99,7 @@ class _LogInViewState extends State<LogInView> {
         filled: true,
         fillColor:  Color(0x1A6BB5B8),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
           borderSide: BorderSide.none,
         ),
       ),
@@ -111,7 +115,7 @@ class _LogInViewState extends State<LogInView> {
         filled: true,
         fillColor:  Color(0x1A6BB5B8),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
           borderSide: BorderSide.none,
         ),
         suffixIcon: IconButton(

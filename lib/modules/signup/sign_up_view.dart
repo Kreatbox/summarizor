@@ -3,14 +3,18 @@ import 'package:summarizor/core/services/responsive.dart';
 import '../../core/constants/images.dart';
 import 'package:summarizor/core/constants/color.dart';
 import 'package:summarizor/core/constants/text_style.dart';
+import 'package:summarizor/core/services/navigation.dart';
+
+import '../home_screen/homes_screen.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
   @override
   State<Signup> createState() => _SignupState();
 }
+
 class _SignupState extends State<Signup> {
-    bool _obscureText = true;
+  bool _obscureText = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,64 +22,67 @@ class _SignupState extends State<Signup> {
         child: Stack(
           children: [
             Image.asset(
-              Images.base, 
+              Images.base,
               fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
+              width: 412.w,
             ),
-
             Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w,vertical: 30.h),
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 30.h),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Image.asset(
-                    Images.base1,
-                  width: 93,
-  height: 102,
+                  SizedBox(
+                    height: 30.h,
+                  ),
+                  SizedBox(
+                    width: 93.w,
+                    height: 102.h,
+                    child: Image.asset(Images.base1),
                   ),
 
-                  const SizedBox(height: 60),
+                  SizedBox(height: 60.h),
 //****** */
                   _buildTextField("Fullname"),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   _buildTextField("Email"),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   _buildPasswordField(),
-                  const SizedBox(height: 60),
+                  SizedBox(height: 60.h),
 //****** */
 
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: 50.h,
                     child: ElevatedButton(
                       onPressed: () {
+                        Navigation.navigateAndRemove(context, HomesScreen());
                       },
                       style: ElevatedButton.styleFrom(
-                backgroundColor: PrimaryColor,
+                        backgroundColor: PrimaryColor,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
                       ),
                       child: Text(
-                        "Sign Up", 
-style: TextFormStyle.textObboardDescblack,
+                        "Sign Up",
+                        style: TextFormStyle.textObboardDescblack,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Already have an account?", 
+                        "Already have an account?",
                       ),
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, "/log_in_view");
                         },
                         child: Text(
-                          "Log In",style: TextFormStyle.textObboardtitle3,
+                          "Log In",
+                          style: TextFormStyle.textObboardtitle3,
                         ),
                       ),
                     ],
@@ -95,9 +102,9 @@ style: TextFormStyle.textObboardDescblack,
         labelText: label,
         labelStyle: TextFormStyle.textfield,
         filled: true,
-fillColor: Color(0x1A6BB5B8),
+        fillColor: Color(0x1A6BB5B8),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
           borderSide: BorderSide.none,
         ),
       ),
@@ -110,21 +117,22 @@ fillColor: Color(0x1A6BB5B8),
         labelText: "Password",
         labelStyle: TextFormStyle.textfield,
         filled: true,
-fillColor: Color(0x1A6BB5B8),
+        fillColor: Color(0x1A6BB5B8),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
           borderSide: BorderSide.none,
-          
-        ), 
-suffixIcon: IconButton(
+        ),
+        suffixIcon: IconButton(
           icon: Icon(
-            _obscureText ? Icons.visibility_off : Icons.visibility, // تبديل الرمز
-            color: Color(0xFF6BB5B8), // اللون المحدد
+            _obscureText
+                ? Icons.visibility_off
+                : Icons.visibility,
+            color: Color(0xFF6BB5B8),
           ),
           onPressed: () {
             setState(() {
-              _obscureText = !_obscureText; // تغيير الحالة بين الإخفاء والإظهار
-           });
+              _obscureText = !_obscureText;
+            });
           },
         ),
       ),

@@ -55,4 +55,25 @@ class TextFormStyle {
     color: Colorapp.greyfield,
 
   );
+  static TextStyle appbar = TextStyle(
+    fontFamily: 'poppinsreg',
+    fontSize: 40.f,
+    fontWeight: FontWeight.w300,
+    color: Colorapp.grey,
+
+  );
+  static TextStyle appbar2 = TextStyle(
+    fontFamily: 'poppinsBold',
+    fontSize: 40.f,
+    fontWeight: FontWeight.w300,
+    color: Colorapp.aqua,
+
+  );
+  static TextStyle homebox = TextStyle(
+    fontFamily: 'poppinsreg',
+    fontSize: 25.f,
+    fontWeight: FontWeight.w300,
+    color: Colorapp.grey,
+
+  );
 }
