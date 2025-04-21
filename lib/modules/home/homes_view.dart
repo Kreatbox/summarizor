@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:summarizor/core/constants/app_routes.dart';
+import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/core/services/responsive.dart';
-import 'package:summarizor/core/constants/images.dart';
-import 'package:summarizor/modules/summarize/summarize.dart';
-import '../../core/constants/text_style.dart';
+import 'package:summarizor/core/constants/app_images.dart';
 import '../../core/services/navigation.dart';
-import 'package:summarizor/modules/create_quiz/create_quiz.dart';
-class HomesScreen extends StatefulWidget {
-  const HomesScreen({super.key});
+
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
 
   @override
-  State<HomesScreen> createState() => _HomesScreenState();
+  State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomesScreenState extends State<HomesScreen> {
+class _HomeViewState extends State<HomeView> {
+  String? fullName;
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +30,7 @@ class _HomesScreenState extends State<HomesScreen> {
           leading: Builder(
             builder: (context) => IconButton(
               icon: Image.asset(
-                Images.sidebar,
+                Images.sidebarIcon,
                 width: 50.w,
                 height: 50.h,
               ),
@@ -40,10 +47,10 @@ class _HomesScreenState extends State<HomesScreen> {
                   color: Colors.teal,
                 ),
                 child: Text(
-                  'Hello, Leena!',
+                  'Hello, ${fullName ?? ''}!',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 20,
                   ),
                 ),
               ),
@@ -66,23 +73,23 @@ class _HomesScreenState extends State<HomesScreen> {
           ),
         ),
         body: Stack(children: [
-          Image.asset(Images.base3, fit: BoxFit.cover, width: 412),
+          Image.asset(Images.placeholderImage, fit: BoxFit.cover, width: 412),
           Padding(
             padding: EdgeInsets.only(left: 10.w, right: 10.w),
             child: ListView(
               children: [
                 Text(
                   'Hello',
-                  style: TextFormStyle.appbar,
+                  style: Theme.of(context).textTheme.headlineLarge,
                 ),
                 Text(
-                  'Leena!',
-                  style: TextFormStyle.appbar2,
+                  '${fullName ?? ''}!',
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 SizedBox(height: 30.h),
                 GestureDetector(
                   onTap: () {
-                    Navigation.navigateTo( context, summarize());
+                    Navigation.navigateTo( context, AppRoute.summarize);
                   },
                   child: Container(
                     margin: EdgeInsets.only(bottom: 20.h),
@@ -94,14 +101,14 @@ class _HomesScreenState extends State<HomesScreen> {
                     child: Column(
                       children: [
                         Image.asset(
-                          Images.summarizeImage,
+                          Images.summarizeIcon,
                           height: 109.h,
                           width: 110.w,
                         ),
                         SizedBox(height: 10.h),
                         Text(
                           'Summraize A Document',
-                          style:TextFormStyle.homebox
+                          style:Theme.of(context).textTheme.headlineSmall
                         ),
                       ],
                     ),
@@ -111,7 +118,7 @@ class _HomesScreenState extends State<HomesScreen> {
                 // زر Create a Quiz
                 GestureDetector(
                   onTap: () {
-                    Navigation.navigateTo( context,CreateQuiz() );
+                    Navigation.navigateTo( context, AppRoute.quiz);
                   },
                   child: Container(
                     padding: EdgeInsets.all(20.w),
@@ -122,14 +129,14 @@ class _HomesScreenState extends State<HomesScreen> {
                     child: Column(
                       children: [
                         Image.asset(
-                          Images.quizImage,
+                          Images.quizIcon,
                           height: 110.h,
                           width: 125.w,
                         ),
                         SizedBox(height: 10.h),
                         Text(
                           'Create A Quiz',
-                          style:TextFormStyle.homebox
+                          style:Theme.of(context).textTheme.headlineSmall
                         ),
                       ],
                     ),
@@ -139,5 +146,12 @@ class _HomesScreenState extends State<HomesScreen> {
             ),
           )
         ]));
+  }
+  _loadUserData() async {
+    final cacheManager = CacheManager();
+    final user = await cacheManager.getUser();
+    setState(() {
+      fullName = user.fullName;
+    });
   }
 }

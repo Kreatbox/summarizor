@@ -2,66 +2,76 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class Responsive {
-  static late double screenWidth;
-  static late double screenHeight;
-  static late double scaleFactor;
-  static double screenWidthUI = 375;
-  static double screenHeightUI = 812;
+  late double widthFactor;
+  late double heightFactor;
 
-  static void init(BuildContext context) {
+  Responsive(BuildContext context) {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
-    screenWidth = mediaQuery.size.width /screenWidthUI;
-    screenHeight = mediaQuery.size.height / screenHeightUI;
-    scaleFactor = (screenWidth + screenHeight) / 2;
-  }
-  static double getScaleFactor() {
-    return scaleFactor;
+    widthFactor = mediaQuery.size.width;
+    heightFactor = mediaQuery.size.height;
   }
 
-  static double getWidth(double designWidth) {
-    return designWidth * screenWidth;
+  double getWidth(double designWidth) {
+    return designWidth * widthFactor / 375;
   }
 
-  static double getHeight(double designHeight) {
-    return designHeight * screenHeight;
+  double getHeight(double designHeight) {
+    return designHeight * heightFactor / 812;
   }
 
-  static double getFontSize(double designFontSize) {
-    return designFontSize * scaleFactor;
+  double getFontSize(double designFontSize) {
+    return designFontSize * widthFactor / 375;
   }
 
-  static double getRadius(double designRadius) {
-    return designRadius * scaleFactor;
+  double getRadius(double designRadius) {
+    return designRadius * widthFactor / 375;
   }
-  static double getEqualSize(double designRadius) {
-    return designRadius * scaleFactor;
-  }
-  static EdgeInsets getPadding(double padding) {
-    double scaledPadding = padding * getScaleFactor();
+
+  EdgeInsets getPadding(double padding) {
+    double scaledPadding = padding * widthFactor / 375;
     return EdgeInsets.all(scaledPadding);
   }
-
-
 }
 extension IntSizeExtension on int {
-  double get w => Responsive.getWidth(toDouble());
-  double get h => Responsive.getHeight(toDouble());
-  double get f => Responsive.getFontSize(toDouble());
-  double get r => Responsive.getRadius(toDouble());
-  double get e => Responsive.getEqualSize(toDouble());
+  double get w => Responsive(buildContext).getWidth(toDouble());
+  double get h => Responsive(buildContext).getHeight(toDouble());
+  double get f => Responsive(buildContext).getFontSize(toDouble());
+  double get r => Responsive(buildContext).getRadius(toDouble());
 }
 
 extension SizeExtension on double {
-  double get w => Responsive.getWidth(this);
-  double get h => Responsive.getHeight(this);
-  double get f => Responsive.getFontSize(this);
-  double get r => Responsive.getRadius(this);
-  double get e => Responsive.getEqualSize(this);
+  double get w => Responsive(buildContext).getWidth(this);
+  double get h => Responsive(buildContext).getHeight(this);
+  double get f => Responsive(buildContext).getFontSize(this);
+  double get r => Responsive(buildContext).getRadius(this);
 }
 
 extension PaddingExtension on double {
-  EdgeInsets get p => Responsive.getPadding(this);
+  EdgeInsets get p => Responsive(buildContext).getPadding(this);
 }
 extension IntPaddingExtension on int {
-  EdgeInsets get p => Responsive.getPadding(toDouble());
+  EdgeInsets get p => Responsive(buildContext).getPadding(toDouble());
+}
+late BuildContext buildContext;
+
+class MyWidget extends StatefulWidget {
+  final Widget child;
+  const MyWidget({super.key, required this.child});
+
+  @override
+  State<MyWidget> createState() => _MyWidgetState();
+}
+
+class _MyWidgetState extends State<MyWidget> {
+  @override
+  void initState() {
+    super.initState();
+    // Assign the buildContext when the widget is built
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    buildContext = context;
+    return widget.child;
+  }
 }

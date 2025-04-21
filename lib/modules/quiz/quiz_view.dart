@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:summarizor/core/services/responsive.dart';
 
-import '../../core/constants/images.dart';
+import '../../core/constants/app_images.dart';
 
-class CreateQuiz extends StatefulWidget {
-  const CreateQuiz({super.key});
+class QuizView extends StatefulWidget {
+  const QuizView({super.key});
 
   @override
-  State<CreateQuiz> createState() => _CreateQuizState();
+  State<QuizView> createState() => _QuizViewState();
 }
 
-class _CreateQuizState extends State<CreateQuiz> {
+class _QuizViewState extends State<QuizView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(padding:EdgeInsets.only(left: 10.w, right: 10.w),
         child: ListView(
           children: [
-            Image.asset(Images.quizImage),
+            Image.asset(Images.quizIcon),
           ],
         ),),
     );
