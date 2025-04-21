@@ -12,7 +12,6 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   runApp(const MainApp());
 }
 
@@ -21,13 +20,14 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        return MyWidget(
+    return MyWidget(
       child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: AppRoute.onboarding,
-      theme: AppThemes.lightTheme,
-      darkTheme: AppThemes.darkTheme,
-      routes: AppRoute.routes, 
-    ),);
+        debugShowCheckedModeBanner: false,
+        initialRoute: AppRoute.onboarding,
+        theme: AppThemes.lightTheme,
+        darkTheme: AppThemes.darkTheme,
+        routes: AppRoute.routes,
+      ),
+    );
   }
 }
