@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:summarizor/modules/log_in/log_in_view.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/constants/app_routes.dart';
+import 'core/constants/app_themes.dart';
 import 'firebase_options.dart';
-import 'package:summarizor/modules/Onboarding/onboarding_view.dart';
-import 'package:summarizor/modules/signup/sign_up_view.dart';
 import 'package:summarizor/core/services/responsive.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -20,19 +21,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Responsive.init(context);
-    return MaterialApp(
+        return MyWidget(
+      child: MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-        useMaterial3: true,
-      ),
-      initialRoute: "/onboarding", 
-      routes: {
-        "/onboarding": (context) => const OnboardingView(),
-        "/signup": (context) => const Signup(),
-        "/log_in_view": (context) => const LogInView(), 
-      },
-    );
+      initialRoute: AppRoute.onboarding,
+      theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme,
+      routes: AppRoute.routes, 
+    ),);
   }
 }

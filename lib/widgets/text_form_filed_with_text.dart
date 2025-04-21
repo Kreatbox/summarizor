@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:summarizor/core/constants/color.dart';
+import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/responsive.dart';
 import 'package:summarizor/widgets/text_filed.dart';
 class TextFormFiledWithText extends StatefulWidget {
@@ -31,7 +31,7 @@ class TextFormFiledWithText extends StatefulWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.validator,
-    this.color = PrimaryColor,
+    this.color = AppColors.primary,
     this.pt = 16,
     this.pb = 0,
     this.pl = 0,

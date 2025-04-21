@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:summarizor/core/constants/color.dart';
+import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/responsive.dart';
-
-import '../core/constants/text_style.dart';
 class TextFiledApp extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
@@ -28,7 +26,7 @@ class TextFiledApp extends StatefulWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.validator,
-    this.color = PrimaryColor,
+    this.color = AppColors.primary,
     this.pt = 0,
     this.pb = 0,
     this.pl = 0,
@@ -66,12 +64,12 @@ class _TextFiledState extends State<TextFiledApp> {
           obscureText: _obscureText,
           validator: widget.validator,
           cursorColor: widget.color,
-          style: TextFormStyle.textfield,
+          style: Theme.of(context).textTheme.labelLarge,
           decoration: InputDecoration(
             errorText: widget.errorMessage,
-            errorStyle: TextFormStyle.textfield,
+            errorStyle: Theme.of(context).textTheme.labelLarge,
             helperText: ' ',
-            helperStyle: TextFormStyle.textfield,
+            helperStyle: Theme.of(context).textTheme.labelLarge,
             contentPadding: EdgeInsets.symmetric(horizontal: 16.0.w, vertical: 16.0.h),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.r),
@@ -79,14 +77,14 @@ class _TextFiledState extends State<TextFiledApp> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(color: Colorapp.greyfield),
+              borderSide: const BorderSide(color: AppColors.lightGrey),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.r),
               borderSide: BorderSide(color: widget.color),
             ),
             hintText: widget.hintText,
-            hintStyle: TextFormStyle.textfield.copyWith(color:  Colorapp.greyfield,fontWeight: FontWeight.w400),
+            hintStyle: Theme.of(context).textTheme.labelLarge?.copyWith(color:  AppColors.lightGrey,fontWeight: FontWeight.w400),
             prefixIcon:widget.prefixIcon != null ? Padding(
               padding:  EdgeInsets.only(left: 16.0.w ,right: 10.w),
               child: widget.prefixIcon,
@@ -105,7 +103,7 @@ class _TextFiledState extends State<TextFiledApp> {
                 _obscureText
                     ? Icons.visibility
                     : Icons.visibility_off,
-                size: 25.0.e,
+                size: 25.0.f,
               ),
               onTap: () {
                 setState(() {
