@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 
 class Navigation {
-  static void navigateTo(BuildContext context, Widget screen) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => screen),
-    );
+  static void navigateTo(BuildContext context, String name) {
+    Navigator.pushNamed(context, name);
   }
 
-  static void navigateAndRemove(BuildContext context, Widget screen) {
-    Navigator.pushAndRemoveUntil(
+  static void navigateAndRemove(BuildContext context, String name) {
+    Navigator.pushNamedAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => screen),
-          (route) => false,
+      name,
+      (route) => false,
     );
   }
 
   static void pop_(BuildContext context) {
     Navigator.pop(context);
   }
+
   static void goBack(BuildContext context) {
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
@@ -32,5 +30,4 @@ class Navigation {
       );
     }
   }
-
 }
