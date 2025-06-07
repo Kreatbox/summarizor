@@ -19,7 +19,6 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     _loadUserData();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,35 +42,64 @@ class _HomeViewState extends State<HomeView> {
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.teal,
-                ),
+                decoration: BoxDecoration(color: Colors.teal),
                 child: Text(
                   'Hello, ${fullName ?? ''}!',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),
-
               ListTile(
                 leading: Icon(Icons.description),
-                title: Text('Summarize a Document'),
+                title: Text('Summarize a Document', style: TextStyle(color: Colors.black)),
                 onTap: () {
-                 Navigation.pop_(context);
+                  Navigation.pop_(context);
+                  Navigation.navigateTo(context, AppRoute.summarize);
                 },
               ),
               ListTile(
                 leading: Icon(Icons.quiz),
-                title: Text('Create a Quiz'),
+                title: Text('Create a Quiz', style: TextStyle(color: Colors.black)),
                 onTap: () {
                   Navigation.pop_(context);
+                  Navigation.navigateTo(context, AppRoute.quiz);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.article),
+                title: Text('Texts and Documents Summary', style: TextStyle(color: Colors.black)),
+                onTap: () {
+                  Navigation.pop_(context);
+                  Navigation.navigateTo(context, AppRoute.textsSummary);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.list_alt),
+                title: Text('Summary Quizzes', style: TextStyle(color: Colors.black)),
+                onTap: () {
+                  Navigation.pop_(context);
+                  Navigation.navigateTo(context, AppRoute.summaryQuizzes);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.check_circle_outline),
+                title: Text('Do the Quizzes', style: TextStyle(color: Colors.black)),
+                onTap: () {
+                  Navigation.pop_(context);
+                  Navigation.navigateTo(context, AppRoute.doQuizzes);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('Settings', style: TextStyle(color: Colors.black)),
+                onTap: () {
+                  Navigation.pop_(context);
+                  Navigation.navigateTo(context, AppRoute.settings);
                 },
               ),
             ],
           ),
         ),
+
         body: Stack(children: [
           Image.asset(Images.placeholderImage, fit: BoxFit.cover, width: 412),
           Padding(
