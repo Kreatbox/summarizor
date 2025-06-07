@@ -50,12 +50,12 @@ class _QuizViewState extends State<QuizView> {
 
   Future<void> _saveQuizAndNavigate(String quizText) async {
     final prefs = await SharedPreferences.getInstance();
-    List<Map<String, String>> currentQuizzes = [];
+    List<Map<String, dynamic>> currentQuizzes = [];
     final String? quizzesJson = prefs.getString(_quizzesKey);
 
     if (quizzesJson != null) {
       final List<dynamic> decodedList = json.decode(quizzesJson);
-      currentQuizzes = decodedList.map((item) => Map<String, String>.from(item)).toList();
+      currentQuizzes = decodedList.map((item) => Map<String, dynamic>.from(item)).toList();
     }
 
     bool isDuplicate = currentQuizzes.any((quiz) => quiz['content'] == quizText);
@@ -63,6 +63,9 @@ class _QuizViewState extends State<QuizView> {
       currentQuizzes.add({
         'id': DateTime.now().millisecondsSinceEpoch.toString(),
         'content': quizText,
+        'isCompleted': false,
+        'correctAnswers': 0,
+        'wrongAnswers': 0,
       });
       await prefs.setString(_quizzesKey, json.encode(currentQuizzes));
     }
@@ -139,8 +142,8 @@ $content
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Create a Quiz"),
+      appBar:  AppBar(
+        title: Text("Create a Quiz"),
         backgroundColor: AppColors.primary,
       ),
       body: SingleChildScrollView(
@@ -157,15 +160,23 @@ $content
               controller: textController,
               maxLines: 7,
               decoration: InputDecoration(
-                hintText: "Paste text here...",
-                filled: true,
-                fillColor: AppColors.aqua10,
+                labelText: 'Paste text here',
+                hintText:
+                'You can type or paste any text you want to summarize...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                filled: true,
+                fillColor: Colors.grey[50],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
+            const Text(
+              'OR',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
             DottedBorder(
               dashPattern: const [6, 3],
               color: Colors.grey,

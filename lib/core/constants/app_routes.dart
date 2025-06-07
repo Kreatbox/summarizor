@@ -38,7 +38,7 @@ class AppRoute {
     textsSummary: (context) => const TextsAndDocumentsSummaryView(),
     summaryQuizzes: (context) => const SummaryQuizzesView(),
     doQuizzes: (context) => const DoQuizzesView(),
-    takeQuiz: (context) => const TakeQuizScreen(quizContent: '',),
+    takeQuiz: (context) => const TakeQuizScreen(quizContent: '', quizId: '',),
     settings: (context) => const SettingsView(),
   };
 }

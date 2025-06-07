@@ -50,7 +50,7 @@ class _HomeViewState extends State<HomeView> {
               ),
               ListTile(
                 leading: Icon(Icons.description),
-                title: Text('Summarize a Document', style: TextStyle(color: Colors.black)),
+                title: Text('Summarize Text or File', style: TextStyle(color: Colors.black)),
                 onTap: () {
                   Navigation.pop_(context);
                   Navigation.navigateTo(context, AppRoute.summarize);
@@ -135,15 +135,13 @@ class _HomeViewState extends State<HomeView> {
                         ),
                         SizedBox(height: 10.h),
                         Text(
-                          'Summraize A Document',
+                          'Summarize Text or File',
                           style:Theme.of(context).textTheme.headlineSmall
                         ),
                       ],
                     ),
                   ),
                 ),
-
-                // زر Create a Quiz
                 GestureDetector(
                   onTap: () {
                     Navigation.navigateTo( context, AppRoute.quiz);

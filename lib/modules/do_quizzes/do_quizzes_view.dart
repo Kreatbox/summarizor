@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/modules/do_quizzes/take_quiz_screen.dart';
+
 class DoQuizzesView extends StatefulWidget {
   const DoQuizzesView({super.key});
 
@@ -11,7 +12,7 @@ class DoQuizzesView extends StatefulWidget {
 }
 
 class _DoQuizzesViewState extends State<DoQuizzesView> {
-  List<Map<String, String>> _quizzes = [];
+  List<Map<String, dynamic>> _quizzes = []; // تغيير إلى dynamic
   final String _quizzesKey = 'generated_quizzes_list';
 
   @override
@@ -26,7 +27,7 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
     if (quizzesJson != null) {
       final List<dynamic> decodedList = json.decode(quizzesJson);
       setState(() {
-        _quizzes = decodedList.map((item) => Map<String, String>.from(item)).toList();
+        _quizzes = decodedList.map((item) => Map<String, dynamic>.from(item)).toList();
         _quizzes.sort((a, b) => a['id']!.compareTo(b['id']!));
       });
     } else {
@@ -73,6 +74,10 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
         itemCount: _quizzes.length,
         itemBuilder: (context, index) {
           final quiz = _quizzes[index];
+          bool isCompleted = quiz['isCompleted'] ?? false;
+          int correct = quiz['correctAnswers'] ?? 0;
+          int wrong = quiz['wrongAnswers'] ?? 0;
+
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8.0),
             elevation: 6,
@@ -94,17 +99,43 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                   color: AppColors.primary,
                 ),
               ),
-              subtitle: const Text('Tap to start this quiz.'),
-              trailing: IconButton(
-                icon: Icon(Icons.delete_forever, color: Colors.red[700]),
-                onPressed: () => _deleteQuiz(quiz['id']!),
-                tooltip: 'Delete this quiz',
+              subtitle: Text(
+                isCompleted ? 'Completed: Correct $correct, Wrong $wrong' : 'Tap to start this quiz.',
+                style: TextStyle(
+                  color: isCompleted ? (correct > wrong ? Colors.green : Colors.red) : null,
+                  fontWeight: isCompleted ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isCompleted)
+                    IconButton(
+                      icon: const Icon(Icons.refresh, color: Colors.blue), // زر إعادة التقديم
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TakeQuizScreen(quizContent: quiz['content']!, quizId: quiz['id']!),
+                          ),
+                        ).then((_) {
+                          _loadQuizzes();
+                        });
+                      },
+                      tooltip: 'Retake Quiz',
+                    ),
+                  IconButton(
+                    icon: Icon(Icons.delete_forever, color: Colors.red[700]),
+                    onPressed: () => _deleteQuiz(quiz['id']!),
+                    tooltip: 'Delete this quiz',
+                  ),
+                ],
               ),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TakeQuizScreen(quizContent: quiz['content']!),
+                    builder: (context) => TakeQuizScreen(quizContent: quiz['content']!, quizId: quiz['id']!), // تمرير الـ id
                   ),
                 ).then((_) {
                   _loadQuizzes();

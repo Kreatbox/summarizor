@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 
-
 class SummaryQuizzesView extends StatefulWidget {
   final String? newQuizContent;
 
@@ -14,7 +13,7 @@ class SummaryQuizzesView extends StatefulWidget {
 }
 
 class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
-  List<Map<String, String>> _quizzes = [];
+  List<Map<String, dynamic>> _quizzes = [];
   final String _quizzesKey = 'generated_quizzes_list';
 
   @override
@@ -29,14 +28,21 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
 
     if (quizzesJson != null) {
       final List<dynamic> decodedList = json.decode(quizzesJson);
-      _quizzes = decodedList.map((item) => Map<String, String>.from(item)).toList();
+      _quizzes = decodedList.map((item) => Map<String, dynamic>.from(item)).toList();
     } else {
       final String? singleQuizText = prefs.getString('generated_quiz');
       if (singleQuizText != null && singleQuizText != "No quiz found.") {
-        _quizzes.add({'id': DateTime.now().millisecondsSinceEpoch.toString(), 'content': singleQuizText});
+        _quizzes.add({
+          'id': DateTime.now().millisecondsSinceEpoch.toString(),
+          'content': singleQuizText,
+          'isCompleted': false,
+          'correctAnswers': 0,
+          'wrongAnswers': 0,
+        });
         await prefs.remove('generated_quiz');
       }
     }
+
     setState(() {
       _quizzes.sort((a, b) => a['id']!.compareTo(b['id']!));
     });
@@ -62,7 +68,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Generated Quizzes"),
+        title: const Text("Saved Quizzes"),
         backgroundColor: AppColors.primary,
       ),
       body: _quizzes.isEmpty
