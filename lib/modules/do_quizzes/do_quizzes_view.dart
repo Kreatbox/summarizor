@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
+import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/modules/do_quizzes/take_quiz_screen.dart';
 
 class DoQuizzesView extends StatefulWidget {
@@ -12,23 +13,36 @@ class DoQuizzesView extends StatefulWidget {
 }
 
 class _DoQuizzesViewState extends State<DoQuizzesView> {
-  List<Map<String, dynamic>> _quizzes = []; // تغيير إلى dynamic
-  final String _quizzesKey = 'generated_quizzes_list';
+  List<dynamic> _quizzes = [];
+  String? _userId;
 
   @override
   void initState() {
     super.initState();
-    _loadQuizzes();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final user = await CacheManager().getUser();
+    if (user != null && mounted) {
+      setState(() {
+        _userId = user.uid;
+      });
+      _loadQuizzes();
+    }
   }
 
   Future<void> _loadQuizzes() async {
+    if (_userId == null) return;
     final prefs = await SharedPreferences.getInstance();
-    final String? quizzesJson = prefs.getString(_quizzesKey);
+    final String userQuizzesKey = 'generated_quizzes_list_$_userId';
+    final String? quizzesJson = prefs.getString(userQuizzesKey);
+
     if (quizzesJson != null) {
       final List<dynamic> decodedList = json.decode(quizzesJson);
       setState(() {
-        _quizzes = decodedList.map((item) => Map<String, dynamic>.from(item)).toList();
-        _quizzes.sort((a, b) => a['id']!.compareTo(b['id']!));
+        _quizzes = decodedList;
+        _quizzes.sort((a, b) => (b['id'] as String).compareTo(a['id'] as String));
       });
     } else {
       setState(() {
@@ -48,25 +62,40 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
   }
 
   Future<void> _saveQuizzes() async {
+    if (_userId == null) return;
     final prefs = await SharedPreferences.getInstance();
-    final String quizzesJson = json.encode(_quizzes);
-    await prefs.setString(_quizzesKey, quizzesJson);
+    final String userQuizzesKey = 'generated_quizzes_list_$_userId';
+    await prefs.setString(userQuizzesKey, json.encode(_quizzes));
+  }
+
+  void _navigateToTakeQuiz(Map<String, dynamic> quizData, String quizId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TakeQuizScreen(quizData: quizData, quizId: quizId),
+      ),
+    ).then((_) {
+      _loadQuizzes();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Available Quizzes"),
+        title: const Text("Available Quizzes", style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _quizzes.isEmpty
           ? const Center(
-        child: Text(
-          'No quizzes available to take. Create some first!',
-          style: TextStyle(fontSize: 18, color: Colors.blueGrey),
-          textAlign: TextAlign.center,
+        child: Padding(
+          padding: EdgeInsets.all(24.0),
+          child: Text(
+            'No quizzes available. Go to "Create Quiz" to make one!',
+            style: TextStyle(fontSize: 18, color: Colors.blueGrey),
+            textAlign: TextAlign.center,
+          ),
         ),
       )
           : ListView.builder(
@@ -74,6 +103,8 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
         itemCount: _quizzes.length,
         itemBuilder: (context, index) {
           final quiz = _quizzes[index];
+          final quizData = quiz['quizData'] as Map<String, dynamic>;
+          final questions = quizData['questions'] as List<dynamic>;
           bool isCompleted = quiz['isCompleted'] ?? false;
           int correct = quiz['correctAnswers'] ?? 0;
           int wrong = quiz['wrongAnswers'] ?? 0;
@@ -81,10 +112,9 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8.0),
             elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
               leading: CircleAvatar(
                 backgroundColor: AppColors.primary,
                 child: Text(
@@ -93,17 +123,13 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                 ),
               ),
               title: Text(
-                'Quiz ${index + 1}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
+                'Quiz with ${questions.length} questions',
+                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
               ),
               subtitle: Text(
-                isCompleted ? 'Completed: Correct $correct, Wrong $wrong' : 'Tap to start this quiz.',
+                isCompleted ? 'Completed: $correct correct, $wrong wrong' : 'Ready to take',
                 style: TextStyle(
-                  color: isCompleted ? (correct > wrong ? Colors.green : Colors.red) : null,
-                  fontWeight: isCompleted ? FontWeight.bold : FontWeight.normal,
+                  color: isCompleted ? (correct >= wrong ? Colors.green : Colors.red) : null,
                 ),
               ),
               trailing: Row(
@@ -111,36 +137,18 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                 children: [
                   if (isCompleted)
                     IconButton(
-                      icon: const Icon(Icons.refresh, color: Colors.blue), // زر إعادة التقديم
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TakeQuizScreen(quizContent: quiz['content']!, quizId: quiz['id']!),
-                          ),
-                        ).then((_) {
-                          _loadQuizzes();
-                        });
-                      },
+                      icon: const Icon(Icons.refresh, color: Colors.blue),
+                      onPressed: () => _navigateToTakeQuiz(quiz['quizData'] as Map<String, dynamic>, quiz['id'] as String),
                       tooltip: 'Retake Quiz',
                     ),
                   IconButton(
                     icon: Icon(Icons.delete_forever, color: Colors.red[700]),
-                    onPressed: () => _deleteQuiz(quiz['id']!),
+                    onPressed: () => _deleteQuiz(quiz['id'] as String),
                     tooltip: 'Delete this quiz',
                   ),
                 ],
               ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TakeQuizScreen(quizContent: quiz['content']!, quizId: quiz['id']!), // تمرير الـ id
-                  ),
-                ).then((_) {
-                  _loadQuizzes();
-                });
-              },
+              onTap: () => _navigateToTakeQuiz(quiz['quizData'] as Map<String, dynamic>, quiz['id'] as String),
             ),
           );
         },

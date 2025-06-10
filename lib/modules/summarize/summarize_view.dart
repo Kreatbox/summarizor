@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/core/services/responsive.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:summarizor/core/services/gemini_service.dart';
@@ -22,12 +23,27 @@ class _SummarizeViewState extends State<SummarizeView> {
   PlatformFile? file;
   bool isLoading = false;
   String? responseText;
-  final String _summariesKey = 'generated_summaries_list';
+  String? _userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUserId();
+  }
 
   @override
   void dispose() {
     _textController.dispose();
     super.dispose();
+  }
+
+  Future<void> _getCurrentUserId() async {
+    final user = await CacheManager().getUser();
+    if (user != null) {
+      setState(() {
+        _userId = user.uid;
+      });
+    }
   }
 
   void pickFile() async {
@@ -59,8 +75,10 @@ class _SummarizeViewState extends State<SummarizeView> {
   }
 
   Future<void> _saveSummary(String newContent) async {
+    if (_userId == null) return;
     final prefs = await SharedPreferences.getInstance();
-    final String? summariesJson = prefs.getString(_summariesKey);
+    final String userSummariesKey = 'generated_summaries_list_$_userId';
+    final String? summariesJson = prefs.getString(userSummariesKey);
     List<Map<String, String>> summaries = [];
 
     if (summariesJson != null) {
@@ -75,7 +93,7 @@ class _SummarizeViewState extends State<SummarizeView> {
     });
 
     final String updatedSummariesJson = json.encode(summaries);
-    await prefs.setString(_summariesKey, updatedSummariesJson);
+    await prefs.setString(userSummariesKey, updatedSummariesJson);
   }
 
   Future<void> generateSummary() async {
@@ -96,8 +114,18 @@ class _SummarizeViewState extends State<SummarizeView> {
         contentToSummarize = await extractTextFromFile(file!.path!);
       }
 
+      final prefs = await SharedPreferences.getInstance();
+      final String summaryLength = prefs.getString('summary_length') ?? 'Medium';
+      String promptInstruction = "Provide a concise and clear summary";
+
+      if (summaryLength == 'Short') {
+        promptInstruction = "Provide a very short, one-paragraph summary";
+      } else if (summaryLength == 'Long') {
+        promptInstruction = "Provide a detailed and comprehensive summary";
+      }
+
       final prompt =
-          'Provide a concise and clear summary of the following text:\n\n$contentToSummarize';
+          '$promptInstruction of the following text:\n\n$contentToSummarize';
 
       final geminiService = GeminiService();
       final response = await geminiService.generateContent(prompt);
@@ -117,7 +145,6 @@ class _SummarizeViewState extends State<SummarizeView> {
         });
       }
     } catch (e) {
-      print('❌ Error during summarization: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Error reading or summarizing file.")),
       );
@@ -130,8 +157,9 @@ class _SummarizeViewState extends State<SummarizeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Summarize Text or File"),
+        title: const Text("Summarize Text or File", style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -169,10 +197,11 @@ class _SummarizeViewState extends State<SummarizeView> {
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
-              'OR',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            const Center(
+              child: Text(
+                'OR',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(height: 10),
             DottedBorder(
@@ -186,6 +215,10 @@ class _SummarizeViewState extends State<SummarizeView> {
                 child: Container(
                   height: 150,
                   width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Center(
                     child: file == null
                         ? const Column(
@@ -203,7 +236,14 @@ class _SummarizeViewState extends State<SummarizeView> {
                         const Icon(Icons.check_circle,
                             size: 50, color: Colors.green),
                         const SizedBox(height: 10),
-                        Text("Uploaded: ${file!.name}"),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Text(
+                            "Uploaded: ${file!.name}",
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -213,11 +253,10 @@ class _SummarizeViewState extends State<SummarizeView> {
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: isLoading ? null : generateSummary,
-              icon: const Icon(Icons.summarize),
-              label: const Text("Generate Summary"),
+              icon: const Icon(Icons.summarize, color: Colors.white),
+              label: const Text("Generate Summary", style: TextStyle(color: Colors.white),),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

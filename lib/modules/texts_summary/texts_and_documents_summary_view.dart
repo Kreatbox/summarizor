@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
+import 'package:summarizor/core/services/cache_manager.dart';
 
 class TextsAndDocumentsSummaryView extends StatefulWidget {
   const TextsAndDocumentsSummaryView({super.key});
@@ -14,19 +16,32 @@ class TextsAndDocumentsSummaryView extends StatefulWidget {
 class _TextsAndDocumentsSummaryViewState
     extends State<TextsAndDocumentsSummaryView> {
   List<Map<String, String>> _summaries = [];
-  final String _summariesKey = 'generated_summaries_list';
+  String? _userId;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadSummaries();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    final user = await CacheManager().getUser();
+    if (user != null && mounted) {
+      setState(() {
+        _userId = user.uid;
+      });
+      await _loadSummaries();
+    }
+    setState(() => _isLoading = false);
   }
 
   Future<void> _loadSummaries() async {
-    setState(() => _isLoading = true);
+    if (_userId == null) return;
     final prefs = await SharedPreferences.getInstance();
-    final String? summariesJson = prefs.getString(_summariesKey);
+    final String userSummariesKey = 'generated_summaries_list_$_userId';
+    final String? summariesJson = prefs.getString(userSummariesKey);
 
     if (summariesJson != null) {
       final List<dynamic> decodedList = json.decode(summariesJson);
@@ -34,13 +49,17 @@ class _TextsAndDocumentsSummaryViewState
           decodedList.map((item) => Map<String, String>.from(item)).toList();
       _summaries.sort((a, b) => b['id']!.compareTo(a['id']!));
     }
-    setState(() => _isLoading = false);
+    else {
+      _summaries = [];
+    }
   }
 
   Future<void> _saveSummaries() async {
+    if (_userId == null) return;
     final prefs = await SharedPreferences.getInstance();
+    final String userSummariesKey = 'generated_summaries_list_$_userId';
     final String summariesJson = json.encode(_summaries);
-    await prefs.setString(_summariesKey, summariesJson);
+    await prefs.setString(userSummariesKey, summariesJson);
   }
 
   void _deleteSummary(String id) {
@@ -57,7 +76,7 @@ class _TextsAndDocumentsSummaryViewState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Saved Summaries"),
+        title: const Text("Saved Summaries", style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(
           color: Colors.white,
@@ -67,10 +86,13 @@ class _TextsAndDocumentsSummaryViewState
           ? const Center(child: CircularProgressIndicator())
           : _summaries.isEmpty
           ? const Center(
-        child: Text(
-          'There are no summaries saved yet.',
-          style: TextStyle(fontSize: 18, color: Colors.blueGrey),
-          textAlign: TextAlign.center,
+        child: Padding(
+          padding: EdgeInsets.all(24.0),
+          child: Text(
+            'There are no summaries saved for this account yet.',
+            style: TextStyle(fontSize: 18, color: Colors.blueGrey),
+            textAlign: TextAlign.center,
+          ),
         ),
       )
           : ListView.builder(
@@ -102,22 +124,39 @@ class _TextsAndDocumentsSummaryViewState
                 ),
               ),
               childrenPadding:
-              const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              const EdgeInsets.fromLTRB(16, 0, 16, 8),
               children: [
-                Text(
-                  summary['content']!,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      height: 1.5,
-                      color: Colors.black87),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    summary['content']!,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: Colors.black87),
+                  ),
                 ),
                 Align(
                   alignment: Alignment.bottomRight,
-                  child: IconButton(
-                    icon: Icon(Icons.delete_outline,
-                        color: Colors.red[600]),
-                    onPressed: () => _deleteSummary(summary['id']!),
-                    tooltip: 'Delete this summary',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.copy, color: Theme.of(context).primaryColor),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: summary['content']!));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Summary copied to clipboard!')),
+                          );
+                        },
+                        tooltip: 'Copy Summary',
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete_outline, color: Colors.red[600]),
+                        onPressed: () => _deleteSummary(summary['id']!),
+                        tooltip: 'Delete this summary',
+                      ),
+                    ],
                   ),
                 ),
               ],

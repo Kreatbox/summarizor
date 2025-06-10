@@ -11,9 +11,6 @@ import 'package:summarizor/modules/summary_quizzes/summary_quizzes_view.dart';
 import 'package:summarizor/modules/do_quizzes/do_quizzes_view.dart';
 import 'package:summarizor/modules/settings/settings_view.dart';
 
-import '../../modules/do_quizzes/take_quiz_screen.dart';
-
-
 class AppRoute {
   static const String onboarding = "/onboarding";
   static const String signUp = "/signup";
@@ -38,7 +35,6 @@ class AppRoute {
     textsSummary: (context) => const TextsAndDocumentsSummaryView(),
     summaryQuizzes: (context) => const SummaryQuizzesView(),
     doQuizzes: (context) => const DoQuizzesView(),
-    takeQuiz: (context) => const TakeQuizScreen(quizContent: '', quizId: '',),
     settings: (context) => const SettingsView(),
   };
 }

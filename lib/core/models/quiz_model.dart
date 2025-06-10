@@ -1,53 +1,35 @@
-import 'package:flutter/material.dart';
+// lib/core/models/quiz_model.dart
+
+enum QuestionType {
+  multipleChoice,
+  trueFalse,
+}
 
 class QuizQuestion {
   final String question;
   final List<String> options;
   final String correctAnswer;
+  final QuestionType type;
 
   QuizQuestion({
     required this.question,
     required this.options,
     required this.correctAnswer,
+    required this.type,
   });
 
-  factory QuizQuestion.fromString(String rawQuestionText) {
-    final lines = rawQuestionText.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-    if (lines.isEmpty) {
-      throw FormatException("Raw question text is empty or malformed.");
-    }
-
-    String question = '';
-    List<String> currentOptions = [];
-    String? currentCorrectAnswer;
-
-    int questionStartIndex = 0;
-    if (lines[0].startsWith('**Question')) {
-      questionStartIndex = 1;
-    }
-    if (lines.length > questionStartIndex) {
-      question = lines[questionStartIndex];
-    } else {
-      throw FormatException("Could not find question text.");
-    }
-
-    for (int i = questionStartIndex + 1; i < lines.length; i++) {
-      String line = lines[i];
-      if (line.startsWith('A)') || line.startsWith('B)') || line.startsWith('C)') || line.startsWith('D)')) {
-        currentOptions.add(line);
-      } else if (line.contains('Correct Answer:')) {
-        currentCorrectAnswer = line.split('Correct Answer:').last.replaceAll('**', '').trim();
-      }
-    }
-
-    if (currentOptions.isEmpty || currentCorrectAnswer == null) {
-      throw FormatException("Could not parse options or correct answer from: $rawQuestionText");
-    }
+  factory QuizQuestion.fromJson(Map<String, dynamic> json) {
+    String typeString = json['type'] ?? 'multipleChoice';
+    QuestionType questionType = QuestionType.values.firstWhere(
+          (e) => e.toString() == 'QuestionType.$typeString',
+      orElse: () => QuestionType.multipleChoice,
+    );
 
     return QuizQuestion(
-      question: question,
-      options: currentOptions,
-      correctAnswer: currentCorrectAnswer,
+      question: json['question'] as String,
+      options: List<String>.from(json['options'] as List),
+      correctAnswer: json['correctAnswer'] as String,
+      type: questionType,
     );
   }
 }

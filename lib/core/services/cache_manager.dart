@@ -1,17 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CacheManager {
-   Future<void> removeUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_emailKey);
-    await prefs.remove(_uidKey);
-    await prefs.remove(_fullNameKey);
-  }
-  
-   Future<User> getUser() async {
-    final cachedUser = await getCachedUser();
-    return User(email: cachedUser!['email']!, uid: cachedUser['uid']!, fullName: cachedUser['fullName']!,);
-  }
   static const String _emailKey = 'email';
   static const String _uidKey = 'uid';
   static const String _fullNameKey = 'fullName';
@@ -21,6 +10,18 @@ class CacheManager {
     await prefs.setString(_emailKey, email);
     await prefs.setString(_uidKey, uid);
     await prefs.setString(_fullNameKey, fullName);
+  }
+
+  Future<User?> getUser() async {
+    final cachedUserMap = await getCachedUser();
+    if (cachedUserMap == null) {
+      return null;
+    }
+    return User(
+      email: cachedUserMap['email']!,
+      uid: cachedUserMap['uid']!,
+      fullName: cachedUserMap['fullName']!,
+    );
   }
 
   Future<Map<String, String>?> getCachedUser() async {
@@ -38,11 +39,20 @@ class CacheManager {
       'fullName': fullName,
     };
   }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_emailKey);
+    await prefs.remove(_uidKey);
+    await prefs.remove(_fullNameKey);
+  }
 }
+
 class User {
   final String email;
   final String uid;
   final String fullName;
+
   User({
     required this.email,
     required this.uid,
