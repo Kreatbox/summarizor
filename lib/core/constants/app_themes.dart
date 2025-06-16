@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 
+class ThemeNotifier with ChangeNotifier {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  ThemeMode get themeMode => _themeMode;
+
+  void setTheme(ThemeMode themeMode) {
+    _themeMode = themeMode;
+    notifyListeners();
+  }
+}
+
 class AppThemes {
   static final lightTheme = ThemeData(
+    brightness: Brightness.light,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: Colors.white,
     textTheme: const TextTheme(
@@ -68,15 +80,15 @@ class AppThemes {
       ),
     ),
     colorScheme: ColorScheme.fromSwatch().copyWith(
-      primary: AppColors.primary,
-      secondary: AppColors.secondary,
-      error: AppColors.error,
-      surface: Colors.white,
-      onSurface: Colors.black
-    ),
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        error: AppColors.error,
+        surface: Colors.white,
+        onSurface: Colors.black),
   );
 
   static final darkTheme = ThemeData(
+    brightness: Brightness.dark,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: Colors.black,
     textTheme: const TextTheme(
@@ -141,7 +153,7 @@ class AppThemes {
         color: AppColors.grey,
       ),
     ),
-    colorScheme: ColorScheme.fromSwatch().copyWith(
+    colorScheme: ColorScheme.fromSwatch(brightness: Brightness.dark).copyWith(
       primary: AppColors.primary,
       secondary: AppColors.secondary,
       error: AppColors.error,

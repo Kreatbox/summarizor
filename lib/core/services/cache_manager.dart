@@ -12,6 +12,10 @@ class CacheManager {
     await prefs.setString(_fullNameKey, fullName);
   }
 
+  Future<void> saveUser(User user) async {
+    await cacheUser(user.email, user.uid, user.fullName);
+  }
+
   Future<User?> getUser() async {
     final cachedUserMap = await getCachedUser();
     if (cachedUserMap == null) {
@@ -58,4 +62,16 @@ class User {
     required this.uid,
     required this.fullName,
   });
+
+  User copyWith({
+    String? email,
+    String? uid,
+    String? fullName,
+  }) {
+    return User(
+      email: email ?? this.email,
+      uid: uid ?? this.uid,
+      fullName: fullName ?? this.fullName,
+    );
+  }
 }

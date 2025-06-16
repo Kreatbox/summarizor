@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
+import 'package:summarizor/core/constants/app_themes.dart';
+import 'package:summarizor/core/services/cache_manager.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -10,57 +14,156 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
-  bool _isDarkModeEnabled = false;
+  final _nameController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    _isDarkModeEnabled = Theme.of(context).scaffoldBackgroundColor == Colors.black;
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Settings"),
-        backgroundColor: AppColors.primary,
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
-      ),
-      body: ListView(
-        children: [
-          _buildSettingsTile(
-            context,
-            icon: Icons.light_mode,
-            title: "Dark Mode",
-            trailingWidget: Switch(
-              value: _isDarkModeEnabled,
-              onChanged: (value) {
-                setState(() {
-                  _isDarkModeEnabled = value;
-                });
-              },
-              activeColor: AppColors.primary,
+  Future<void> _showEditNameDialog() async {
+    final cacheManager = CacheManager();
+    final user = await cacheManager.getUser();
+    _nameController.text = user?.fullName ?? '';
+
+    if (!mounted) return;
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Name'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                const Text('Please enter your new name.'),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Full Name',
+                  ),
+                ),
+              ],
             ),
           ),
-          _buildSettingsTile(
-            context,
-            icon: Icons.share,
-            title: "Share",
-            onTap: _shareApp,
-          ),
-        ],
-      ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FilledButton(
+              child: const Text('Save'),
+              onPressed: () async {
+                final newName = _nameController.text.trim();
+                if (newName.isEmpty || user == null) {
+                  return;
+                }
+
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user.uid)
+                      .update({'fullName': newName});
+
+                  final updatedUser = user.copyWith(fullName: newName);
+                  await cacheManager.saveUser(updatedUser);
+
+                  if (mounted) {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("The name has been updated successfully")),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Failed to update name. Please try again.")),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        );
+      },
     );
   }
 
-  Widget _buildSettingsTile(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        Widget? trailingWidget,
-        VoidCallback? onTap,
-      }) {
-    final bool isDarkMode = Theme.of(context).scaffoldBackgroundColor == Colors.black;
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ThemeNotifier>(
+      builder: (context, theme, child) {
+        final isDarkMode = theme.themeMode == ThemeMode.dark;
+
+        return Scaffold(
+          backgroundColor: isDarkMode ? Colors.black : Colors.white,
+          appBar: AppBar(
+            title: const Text("Settings"),
+            backgroundColor: AppColors.primary,
+            iconTheme: const IconThemeData(
+              color: Colors.white,
+            ),
+            titleTextStyle: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          body: ListView(
+            children: [
+              _buildSettingsTile(
+                context: context,
+                isDarkMode: isDarkMode,
+                icon: Icons.light_mode,
+                title: "Dark Mode",
+                trailingWidget: Switch(
+                  value: isDarkMode,
+                  onChanged: (value) {
+                    theme.setTheme(value ? ThemeMode.dark : ThemeMode.light);
+                  },
+                  activeColor: AppColors.primary,
+                  inactiveThumbColor: Colors.grey[400],
+                  inactiveTrackColor: Colors.grey[300],
+                ),
+              ),
+              _buildSettingsTile(
+                context: context,
+                isDarkMode: isDarkMode,
+                icon: Icons.edit,
+                title: "Edit Name",
+                onTap: _showEditNameDialog,
+              ),
+              _buildSettingsTile(
+                context: context,
+                isDarkMode: isDarkMode,
+                icon: Icons.share,
+                title: "Share",
+                onTap: _shareApp,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required BuildContext context,
+    required bool isDarkMode,
+    required IconData icon,
+    required String title,
+    Widget? trailingWidget,
+    VoidCallback? onTap,
+  }) {
     final Color textColor = isDarkMode ? Colors.white : AppColors.grey;
-    final Color iconColor = isDarkMode ? AppColors.primary : AppColors.primary;
+    final Color iconColor = AppColors.primary;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -84,7 +187,8 @@ class _SettingsViewState extends State<SettingsView> {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12.0),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+            padding:
+            const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
             child: Row(
               children: [
                 Icon(icon, color: iconColor),
@@ -94,6 +198,7 @@ class _SettingsViewState extends State<SettingsView> {
                     title,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: textColor,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -109,6 +214,6 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   void _shareApp() {
-    Share.share('Check out my amazing app! [App Download Link Here]');
+    Share.share('Check out Summarizor app! [Your App Link Here]');
   }
 }

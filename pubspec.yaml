@@ -4,11 +4,14 @@ publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: ^3.5.4
+  sdk: '>=3.2.3 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
+
+  provider: ^6.1.2
+
   share_plus: ^11.0.0
   firebase_core: ^3.8.0
   firebase_auth: ^5.5.2
@@ -19,16 +22,15 @@ dependencies:
   file_picker: ^10.1.9
   syncfusion_flutter_pdf: ^24.1.41
   path_provider: ^2.1.1
-
   http: ^1.2.0
-  pdfx: ^2.4.0
+  pdfx: ^2.9.1
   dotted_border: ^2.0.0
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  cupertino_icons: ^1.0.8
 
 flutter:
   uses-material-design: true

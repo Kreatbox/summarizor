@@ -26,7 +26,7 @@ class _HomeViewState extends State<HomeView> {
   Future<void> _loadUserData() async {
     final cacheManager = CacheManager();
     final user = await cacheManager.getUser();
-    if (user != null) {
+    if (user != null && mounted) {
       setState(() {
         fullName = user.fullName;
         email = user.email;
@@ -152,8 +152,10 @@ class _HomeViewState extends State<HomeView> {
                     leading: const Icon(Icons.settings),
                     title: const Text('Settings'),
                     onTap: () {
-                      Navigation.pop_(context);
-                      Navigation.navigateTo(context, AppRoute.settings);
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, AppRoute.settings).then((_) {
+                        _loadUserData();
+                      });
                     },
                   ),
                 ],
@@ -211,8 +213,8 @@ class _HomeViewState extends State<HomeView> {
                         ),
                         SizedBox(height: 10.h),
                         Text(
-                            'Summarize Text or File',
-                            style: Theme.of(context).textTheme.headlineSmall
+                          'Summarize Text or File',
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                       ],
                     ),
@@ -237,8 +239,8 @@ class _HomeViewState extends State<HomeView> {
                         ),
                         SizedBox(height: 10.h),
                         Text(
-                            'Create A Quiz',
-                            style: Theme.of(context).textTheme.headlineSmall
+                          'Create A Quiz',
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                       ],
                     ),
@@ -246,7 +248,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

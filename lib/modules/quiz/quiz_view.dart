@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/core/services/gemini_service.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 import '../do_quizzes/do_quizzes_view.dart';
 
 class QuizView extends StatefulWidget {
@@ -92,14 +93,29 @@ class _QuizViewState extends State<QuizView> {
       String content = "";
 
       if (file != null) {
-        if (kIsWeb) {
+        if (kIsWeb || file!.path == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("File uploads are not supported on the web platform.")),
+            const SnackBar(
+                content: Text("File processing is not supported on web.")),
           );
           setState(() => isLoading = false);
           return;
         }
-        content = await File(file!.path!).readAsString();
+
+        if (file!.extension?.toLowerCase() == 'pdf') {
+          final fileBytes = await File(file!.path!).readAsBytes();
+          final PdfDocument document = PdfDocument(inputBytes: fileBytes);
+          content = PdfTextExtractor(document).extractText();
+          document.dispose();
+        } else if (file!.extension?.toLowerCase() == 'txt') {
+          content = await File(file!.path!).readAsString();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Unsupported file type.")),
+          );
+          setState(() => isLoading = false);
+          return;
+        }
       } else if (textController.text.trim().isNotEmpty) {
         content = textController.text.trim();
       } else {
@@ -141,12 +157,15 @@ class _QuizViewState extends State<QuizView> {
       final response = await geminiService.generateContent(prompt);
 
       if (response != null && response.isNotEmpty) {
-        final cleanedResponse = response.replaceAll("```json", "").replaceAll("```", "").trim();
+        final cleanedResponse =
+        response.replaceAll("```json", "").replaceAll("```", "").trim();
         final quizData = json.decode(cleanedResponse) as Map<String, dynamic>;
         await _saveQuizAndNavigate(quizData);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to generate quiz. Daily limit may be exceeded.")),
+          const SnackBar(
+              content:
+              Text("Failed to generate quiz. Daily limit may be exceeded.")),
         );
       }
     } catch (e) {
@@ -164,7 +183,8 @@ class _QuizViewState extends State<QuizView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Create a Quiz", style: TextStyle(color: Colors.white)),
+        title:
+        const Text("Create a Quiz", style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -218,7 +238,8 @@ class _QuizViewState extends State<QuizView> {
                       ? const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.upload_file, size: 40, color: Colors.grey),
+                      Icon(Icons.upload_file,
+                          size: 40, color: Colors.grey),
                       SizedBox(height: 10),
                       Text("Click to Upload File"),
                     ],
@@ -226,10 +247,12 @@ class _QuizViewState extends State<QuizView> {
                       : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.check_circle, size: 40, color: Colors.green),
+                      const Icon(Icons.check_circle,
+                          size: 40, color: Colors.green),
                       const SizedBox(height: 10),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        padding:
+                        const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
                           "Uploaded: ${file!.name}",
                           textAlign: TextAlign.center,
@@ -247,11 +270,13 @@ class _QuizViewState extends State<QuizView> {
                 : ElevatedButton.icon(
               onPressed: generateQuiz,
               icon: const Icon(Icons.quiz, color: Colors.white),
-              label: const Text("Generate Quiz", style: TextStyle(color: Colors.white)),
+              label: const Text("Generate Quiz",
+                  style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],
