@@ -192,6 +192,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
+
                               builder: (context) => TakeQuizScreen(
                                 quizData: quiz['quizData'] as Map<String, dynamic>,
                                 quizId: quiz['id'] as String,
