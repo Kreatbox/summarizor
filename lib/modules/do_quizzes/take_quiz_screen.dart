@@ -3,6 +3,8 @@ import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/models/quiz_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:summarizor/core/services/responsive.dart';
+
 
 class TakeQuizScreen extends StatefulWidget {
   final Map<String, dynamic> quizData;
@@ -120,27 +122,27 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
         children: [
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
+              padding: 16.0.p,
               itemCount: _questions.length,
               itemBuilder: (context, index) {
                 final question = _questions[index];
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 10.0),
+                  margin:  10.0.pv,
                   elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: 16.0.pv,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Question ${index + 1}: ${question.question}',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style:  TextStyle(fontSize: 18.f, fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 15),
+                         SizedBox(height: 15.h),
                         ...question.options.map((option) {
                           return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            padding:  4.0.pv,
                             child: RadioListTile<String>(
                               title: Text(
                                 option,
@@ -168,32 +170,32 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: 16.0.p,
             child: _quizSubmitted
                 ? Column(
               children: [
                 Card(
                   elevation: 4,
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: 16.0.p,
                     child: Column(children: [
                       Text(
                         'Results: $_correctAnswers / ${_questions.length}',
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 22.f, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 10),
+                       SizedBox(height: 10.h),
                       Text(
                         'Correct: $_correctAnswers',
-                        style: const TextStyle(fontSize: 18, color: Colors.green),
+                        style:  TextStyle(fontSize: 18.f, color: Colors.green),
                       ),
                       Text(
                         'Wrong: $_wrongAnswers',
-                        style: const TextStyle(fontSize: 18, color: Colors.red),
+                        style:  TextStyle(fontSize: 18.f, color: Colors.red),
                       ),
                     ],),
                   ),
                 ),
-                const SizedBox(height: 20),
+                 SizedBox(height: 20.h),
                 ElevatedButton(
                   onPressed: () async {
                     await _saveQuizResults();

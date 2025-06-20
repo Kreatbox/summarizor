@@ -41,7 +41,7 @@ class _SingUpViewState extends State<SingUpView> {
               width: 412.w,
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 30.h),
+              padding:10.ph+ 30.pv,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [

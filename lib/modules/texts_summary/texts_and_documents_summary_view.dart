@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
+import 'package:summarizor/core/services/responsive.dart';
+
 
 class TextsAndDocumentsSummaryView extends StatefulWidget {
   const TextsAndDocumentsSummaryView({super.key});
@@ -85,26 +87,26 @@ class _TextsAndDocumentsSummaryViewState
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _summaries.isEmpty
-          ? const Center(
+          ?  Center(
         child: Padding(
-          padding: EdgeInsets.all(24.0),
+          padding:24.0.p,
           child: Text(
             'There are no summaries saved for this account yet.',
-            style: TextStyle(fontSize: 18, color: Colors.blueGrey),
+            style: TextStyle(fontSize: 18.f, color: Colors.blueGrey),
             textAlign: TextAlign.center,
           ),
         ),
       )
           : ListView.builder(
-        padding: const EdgeInsets.all(10.0),
+        padding: 10.0.p,
         itemCount: _summaries.length,
         itemBuilder: (context, index) {
           final summary = _summaries[index];
           return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            margin:  8.0.pv,
             elevation: 4,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: ExpansionTile(
               leading: CircleAvatar(
@@ -124,15 +126,15 @@ class _TextsAndDocumentsSummaryViewState
                 ),
               ),
               childrenPadding:
-              const EdgeInsets.fromLTRB(16, 0, 16, 8),
+               EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
+                  padding: only(bottom: 8.0.h),
                   child: Text(
                     summary['content']!,
-                    style: const TextStyle(
-                        fontSize: 16,
-                        height: 1.5,
+                    style:  TextStyle(
+                        fontSize: 16.f,
+                        height: 1.5.h,
                         color: Colors.black87),
                   ),
                 ),

@@ -37,7 +37,7 @@ class _LogInViewState extends State<LogInView> {
               width: 412.w,
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+              padding:  20.ph+ 30.pv,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -68,7 +68,7 @@ class _LogInViewState extends State<LogInView> {
                         )
                       : SizedBox(
                           width: double.infinity,
-                          height: 50,
+                          height: 50.h,
                           child: ElevatedButton(
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {

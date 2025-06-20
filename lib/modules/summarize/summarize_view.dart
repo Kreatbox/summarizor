@@ -11,6 +11,8 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:summarizor/core/services/gemini_service.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 
+
+
 class SummarizeView extends StatefulWidget {
   const SummarizeView({super.key});
 
@@ -162,16 +164,16 @@ class _SummarizeViewState extends State<SummarizeView> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: 16.p,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+             Text(
               'Paste text below or upload a PDF/TXT file to get a summary.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.blueGrey),
+              style: TextStyle(fontSize: 16.f, color: Colors.blueGrey),
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
             TextField(
               controller: _textController,
               maxLines: 8,
@@ -190,43 +192,43 @@ class _SummarizeViewState extends State<SummarizeView> {
                 hintText:
                 'You can type or paste any text you want to summarize...',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 filled: true,
                 fillColor: Colors.grey[50],
               ),
             ),
-            const SizedBox(height: 10),
-            const Center(
+             SizedBox(height: 10.h),
+             Center(
               child: Text(
                 'OR',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16.f, fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(height: 10),
+             SizedBox(height: 10.h),
             DottedBorder(
               dashPattern: const [6, 3],
               color: Colors.grey,
               borderType: BorderType.RRect,
-              radius: const Radius.circular(12),
+              radius:  Radius.circular(12.r),
               strokeWidth: 2,
               child: GestureDetector(
                 onTap: pickFile,
                 child: Container(
-                  height: 150,
+                  height: 150.h,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Center(
                     child: file == null
-                        ? const Column(
+                        ?  Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.upload_file,
                             size: 50, color: Colors.grey),
-                        SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         Text("Click to upload a file"),
                       ],
                     )
@@ -235,9 +237,9 @@ class _SummarizeViewState extends State<SummarizeView> {
                       children: [
                         const Icon(Icons.check_circle,
                             size: 50, color: Colors.green),
-                        const SizedBox(height: 10),
+                         SizedBox(height: 10.h),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          padding:  EdgeInsets.symmetric(horizontal: 8.0.h),
                           child: Text(
                             "Uploaded: ${file!.name}",
                             textAlign: TextAlign.center,
@@ -250,7 +252,7 @@ class _SummarizeViewState extends State<SummarizeView> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
             ElevatedButton.icon(
               onPressed: isLoading ? null : generateSummary,
               icon: const Icon(Icons.summarize, color: Colors.white),
@@ -259,11 +261,11 @@ class _SummarizeViewState extends State<SummarizeView> {
                 backgroundColor: AppColors.primary,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
             if (isLoading)
               const Center(child: CircularProgressIndicator())
             else if (responseText != null)
@@ -271,23 +273,23 @@ class _SummarizeViewState extends State<SummarizeView> {
                 color: AppColors.aqua10,
                 elevation: 4,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12.r)),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: 16.p,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "Generated Summary:",
                         style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 18.f,
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary),
                       ),
-                      const SizedBox(height: 10),
+                       SizedBox(height: 10.h),
                       Text(responseText!,
-                          style: TextStyle(height: 1.5.h, fontSize: 16)),
-                      const SizedBox(height: 20),
+                          style: TextStyle(height: 1.5.h, fontSize: 16.f)),
+                       SizedBox(height: 20.h),
                       ElevatedButton.icon(
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: responseText!));

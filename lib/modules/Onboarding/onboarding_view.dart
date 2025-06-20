@@ -24,7 +24,7 @@ class _OnboardingViewState extends State<OnboardingView> {
       bottomSheet: Container(
         width: double.infinity,
         color: Colors.white,
-        padding: EdgeInsets.symmetric(horizontal: 10.w,vertical: 30.h),
+        padding:  10.ph+ 30.pv,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -81,8 +81,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(top: 80.h,
-                          ),
+                          padding: only(top: 80.h,),
                           child:  Text(controller.items[index].title1,
                             style: Theme.of(context).textTheme.displayLarge,),
                         ),
@@ -90,11 +89,11 @@ class _OnboardingViewState extends State<OnboardingView> {
                           style: Theme.of(context).textTheme.displayMedium,
                           textAlign: TextAlign.center,),
                         Padding(
-                          padding: EdgeInsets.only(top: 45.h,left: 20.w,right: 20.w),
+                          padding: only(top: 45.h,left: 20.w,right: 20.w),
                           child: Image.asset(controller.items[index].image,width: 364.w,height: 279.h,),
                         ),
                         Padding(
-                          padding: EdgeInsets.only(top: 20.h,left: 15.w,right: 15.w),
+                          padding: only(top: 20.h,left: 15.w,right: 15.w),
                           child:  Text(controller.items[index].description,
                             style: Theme.of(context).textTheme.bodyLarge,
                             textAlign: TextAlign.center,),

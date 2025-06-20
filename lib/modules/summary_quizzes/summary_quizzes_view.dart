@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/modules/do_quizzes/take_quiz_screen.dart';
+import 'package:summarizor/core/services/responsive.dart';
+
 
 class SummaryQuizzesView extends StatefulWidget {
   const SummaryQuizzesView({super.key});
@@ -84,18 +86,18 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _quizzes.isEmpty
-          ? const Center(
+          ?  Center(
         child: Padding(
-          padding: EdgeInsets.all(24.0),
+          padding: 24.0.p,
           child: Text(
             'No quizzes generated yet for this account.',
-            style: TextStyle(fontSize: 18, color: Colors.blueGrey),
+            style: TextStyle(fontSize: 18.f, color: Colors.blueGrey),
             textAlign: TextAlign.center,
           ),
         ),
       )
           : ListView.builder(
-        padding: const EdgeInsets.all(16.0),
+        padding: 16.0.p,
         itemCount: _quizzes.length,
         itemBuilder: (context, index) {
           final quiz = _quizzes[index];
@@ -103,10 +105,10 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
           final questions = quizData['questions'] as List<dynamic>;
 
           return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            margin:  8.0.pv,
             elevation: 5,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(15.r),
             ),
             child: ExpansionTile(
               leading: CircleAvatar(
@@ -126,7 +128,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
               ),
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  padding:  EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: List.generate(questions.length, (qIndex) {
@@ -137,18 +139,18 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                       question['correctAnswer'] as String;
 
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
+                        padding:  only(bottom: 16.0.h),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Q${qIndex + 1}: ${question['question']}',
-                              style: const TextStyle(
+                              style:  TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontSize: 16.f,
                                   color: Colors.black87),
                             ),
-                            const SizedBox(height: 8),
+                             SizedBox(height: 8.h),
                             ...List.generate(options.length, (optIndex) {
                               final option = options[optIndex] as String;
                               final String optionKey =
@@ -159,12 +161,12 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                               (optionKey == correctAnswer);
 
                               return Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 8.0, top: 4.0),
+                                padding: only(
+                                    left: 8.0.w, top: 4.0.h),
                                 child: Text(
                                   option,
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 15.f,
                                     color: isCorrect
                                         ? Colors.green[800]
                                         : Colors.black54,
@@ -182,7 +184,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
+                  padding:  only(right: 8.0.w, bottom: 8.0.h),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [

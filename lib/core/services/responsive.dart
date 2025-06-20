@@ -21,4 +21,15 @@ extension SizeExtension on num {
 
 extension PaddingExtension on num {
   EdgeInsets get p => EdgeInsets.all((this * SizeConfig.screenWidth) / 375.0);
+  EdgeInsets get ph => EdgeInsets.symmetric(horizontal: this.w);
+  EdgeInsets get pv => EdgeInsets.symmetric(vertical: this.h);
+}
+
+EdgeInsets only({num top = 0, num bottom = 0, num left = 0, num right = 0}) {
+  return EdgeInsets.only(
+    top: top.h,
+    bottom: bottom.h,
+    left: left.w,
+    right: right.w,
+  );
 }

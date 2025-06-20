@@ -10,6 +10,8 @@ import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/core/services/gemini_service.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import '../do_quizzes/do_quizzes_view.dart';
+import 'package:summarizor/core/services/responsive.dart';
+
 
 class QuizView extends StatefulWidget {
   const QuizView({super.key});
@@ -127,7 +129,7 @@ class _QuizViewState extends State<QuizView> {
       }
 
       final prefs = await SharedPreferences.getInstance();
-      final int numOfQuestions = prefs.getInt('quiz_questions_count') ?? 5;
+      final int numOfQuestions = prefs.getInt('quiz_questions_count') ?? 50;
 
       final prompt = '''
       Based on the following text, generate a quiz with $numOfQuestions questions, including a mix of multiple-choice and true/false types.
@@ -193,54 +195,54 @@ class _QuizViewState extends State<QuizView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+             Text(
               'Paste text or upload a file to generate a quiz.',
-              style: TextStyle(fontSize: 16, color: Colors.blueGrey),
+              style: TextStyle(fontSize: 16.f, color: Colors.blueGrey),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+             SizedBox(height: 16.h),
             TextField(
               controller: textController,
               maxLines: 7,
               decoration: InputDecoration(
                 hintText: 'Paste text here...',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 filled: true,
                 fillColor: Colors.grey[50],
               ),
             ),
-            const SizedBox(height: 16),
-            const Center(
+             SizedBox(height: 16.h),
+             Center(
               child: Text(
                 'OR',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16.f, fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(height: 16),
+             SizedBox(height: 16.h),
             GestureDetector(
               onTap: pickFile,
               child: DottedBorder(
                 dashPattern: const [6, 3],
                 color: Colors.grey,
                 borderType: BorderType.RRect,
-                radius: const Radius.circular(12),
+                radius:  Radius.circular(12.r),
                 strokeWidth: 2,
                 child: Container(
-                  height: 130,
+                  height: 130.h,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: file == null
-                      ? const Column(
+                      ?  Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.upload_file,
                           size: 40, color: Colors.grey),
-                      SizedBox(height: 10),
+                      SizedBox(height: 10.h),
                       Text("Click to Upload File"),
                     ],
                   )
@@ -249,10 +251,10 @@ class _QuizViewState extends State<QuizView> {
                     children: [
                       const Icon(Icons.check_circle,
                           size: 40, color: Colors.green),
-                      const SizedBox(height: 10),
+                       SizedBox(height: 10.h),
                       Padding(
                         padding:
-                        const EdgeInsets.symmetric(horizontal: 8.0),
+                          8.0.ph,
                         child: Text(
                           "Uploaded: ${file!.name}",
                           textAlign: TextAlign.center,
@@ -264,7 +266,7 @@ class _QuizViewState extends State<QuizView> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+             SizedBox(height: 24.h),
             isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ElevatedButton.icon(
@@ -276,7 +278,7 @@ class _QuizViewState extends State<QuizView> {
                 backgroundColor: AppColors.primary,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12.r)),
               ),
             ),
           ],

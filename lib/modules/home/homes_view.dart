@@ -6,6 +6,7 @@ import 'package:summarizor/core/services/responsive.dart';
 import 'package:summarizor/core/constants/app_images.dart';
 import '../../core/services/navigation.dart';
 
+
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
@@ -77,10 +78,10 @@ class _HomeViewState extends State<HomeView> {
         ),
       ),
       drawer: Drawer(
-        shape: const RoundedRectangleBorder(
+        shape:  RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            topRight: Radius.circular(25),
-            bottomRight: Radius.circular(25),
+            topRight: Radius.circular(25.r),
+            bottomRight: Radius.circular(25.r),
           ),
         ),
         child: Column(
@@ -88,14 +89,14 @@ class _HomeViewState extends State<HomeView> {
             UserAccountsDrawerHeader(
               accountName: Text(
                 fullName ?? "Guest User",
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style:  TextStyle(fontWeight: FontWeight.bold, fontSize: 18.f),
               ),
               accountEmail: Text(email ?? ""),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Text(
                   _getInitials(fullName),
-                  style: TextStyle(fontSize: 24.0, color: AppColors.primary),
+                  style: TextStyle(fontSize: 24.0.f, color: AppColors.primary),
                 ),
               ),
               decoration: BoxDecoration(
@@ -167,10 +168,10 @@ class _HomeViewState extends State<HomeView> {
               onTap: _logout,
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
+              padding: only(bottom: 16),
               child: Text(
                 'Version 1.0.0',
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12.f),
               ),
             ),
           ],
@@ -178,12 +179,12 @@ class _HomeViewState extends State<HomeView> {
       ),
       body: Stack(
         children: [
-          Image.asset(Images.placeholderImage, fit: BoxFit.cover, width: double.infinity, height: double.infinity),
+          Image.asset(Images.placeholderImage, fit: BoxFit.cover, width: double.infinity.w, height: double.infinity.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w),
             child: ListView(
               children: [
-                SizedBox(height: kToolbarHeight + 40.h),
+
                 Text(
                   'Hello,',
                   style: Theme.of(context).textTheme.headlineLarge,
@@ -202,7 +203,7 @@ class _HomeViewState extends State<HomeView> {
                     padding: EdgeInsets.all(20.w),
                     decoration: BoxDecoration(
                       color: const Color(0xFFEFF7F6),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Column(
                       children: [
@@ -228,7 +229,7 @@ class _HomeViewState extends State<HomeView> {
                     padding: EdgeInsets.all(20.w),
                     decoration: BoxDecoration(
                       color: const Color(0xFFEFF7F6),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Column(
                       children: [

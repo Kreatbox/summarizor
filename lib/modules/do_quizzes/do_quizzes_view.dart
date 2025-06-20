@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/modules/do_quizzes/take_quiz_screen.dart';
+import 'package:summarizor/core/services/responsive.dart';
 
 class DoQuizzesView extends StatefulWidget {
   const DoQuizzesView({super.key});
@@ -88,18 +89,18 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _quizzes.isEmpty
-          ? const Center(
+          ?  Center(
         child: Padding(
-          padding: EdgeInsets.all(24.0),
+          padding: 24.0.p,
           child: Text(
             'No quizzes available. Go to "Create Quiz" to make one!',
-            style: TextStyle(fontSize: 18, color: Colors.blueGrey),
+            style: TextStyle(fontSize: 18.f, color: Colors.blueGrey),
             textAlign: TextAlign.center,
           ),
         ),
       )
           : ListView.builder(
-        padding: const EdgeInsets.all(16.0),
+        padding: 16.0.p,
         itemCount: _quizzes.length,
         itemBuilder: (context, index) {
           final quiz = _quizzes[index];
@@ -110,11 +111,11 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
           int wrong = quiz['wrongAnswers'] ?? 0;
 
           return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            margin: 8.0.pv,
             elevation: 6,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.r)),
             child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              contentPadding: 10.pv + 15.ph,
               leading: CircleAvatar(
                 backgroundColor: AppColors.primary,
                 child: Text(

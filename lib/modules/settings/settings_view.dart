@@ -5,6 +5,8 @@ import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/constants/app_themes.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:summarizor/core/services/responsive.dart';
+
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -39,7 +41,7 @@ class _SettingsViewState extends State<SettingsView> {
             child: ListBody(
               children: <Widget>[
                 const Text('Please enter your new name.'),
-                const SizedBox(height: 16),
+                 SizedBox(height: 16.h),
                 TextField(
                   controller: _nameController,
                   decoration: const InputDecoration(
@@ -110,9 +112,9 @@ class _SettingsViewState extends State<SettingsView> {
             iconTheme: const IconThemeData(
               color: Colors.white,
             ),
-            titleTextStyle: const TextStyle(
+            titleTextStyle:  TextStyle(
               color: Colors.white,
-              fontSize: 20,
+              fontSize: 20.f,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -166,10 +168,10 @@ class _SettingsViewState extends State<SettingsView> {
     final Color iconColor = AppColors.primary;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      margin:  16.0.ph + 8.0.pv,
       decoration: BoxDecoration(
         color: isDarkMode ? AppColors.darkGrey : Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(12.0.r),
         boxShadow: isDarkMode
             ? []
             : [
@@ -185,14 +187,14 @@ class _SettingsViewState extends State<SettingsView> {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(12.0.r),
           child: Padding(
             padding:
-            const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+            20.0.ph + 16.0.pv,
             child: Row(
               children: [
                 Icon(icon, color: iconColor),
-                const SizedBox(width: 20),
+                 SizedBox(width: 20.w),
                 Expanded(
                   child: Text(
                     title,
