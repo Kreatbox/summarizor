@@ -47,10 +47,6 @@ class _LogInViewState extends State<LogInView> {
                     height: 102.h,
                   ),
                   SizedBox(height: 60.h),
-                   SizedBox(
-                    child: Text("Email",style: Theme.of(context).textTheme.labelLarge,),
-                  ),
-                  SizedBox(height: 16.h),
                   Form(
                     key: _formKey,
                     child: Column(
@@ -125,6 +121,8 @@ class _LogInViewState extends State<LogInView> {
       controller: controller,
       decoration: InputDecoration(
           errorStyle: const TextStyle(color: Colors.red),
+        labelText: "Email",
+        labelStyle: Theme.of(context).textTheme.labelLarge,
           errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
         filled: true,
         fillColor:  Color(0x1A6BB5B8),

@@ -37,6 +37,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                 activeDotColor: AppColors.primary
               ),
             ),
+            SizedBox(width: 150.w,),
             ElevatedButton(
               onPressed: () {
                 if (pageContoller.page == controller.items.length - 1) {
@@ -81,7 +82,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Padding(
-                          padding: only(top: 80.h,),
+                          padding: only(top: 5.h,),
                           child:  Text(controller.items[index].title1,
                             style: Theme.of(context).textTheme.displayLarge,),
                         ),
