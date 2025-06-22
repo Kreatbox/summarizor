@@ -10,6 +10,7 @@ import 'package:summarizor/modules/texts_summary/texts_and_documents_summary_vie
 import 'package:summarizor/modules/summary_quizzes/summary_quizzes_view.dart';
 import 'package:summarizor/modules/do_quizzes/do_quizzes_view.dart';
 import 'package:summarizor/modules/settings/settings_view.dart';
+import 'package:summarizor/modules/splashscreen/SplashView.dart';
 
 class AppRoute {
   static const String onboarding = "/onboarding";
@@ -22,6 +23,9 @@ class AppRoute {
   static const String summaryQuizzes = "/summary_quizzes";
   static const String doQuizzes = "/do_quizzes";
   static const String takeQuiz = "/take_quiz";
+  static const String splash = "/splash";
+
+
 
   static const String settings = "/settings";
 
@@ -36,5 +40,6 @@ class AppRoute {
     summaryQuizzes: (context) => const SummaryQuizzesView(),
     doQuizzes: (context) => const DoQuizzesView(),
     settings: (context) => const SettingsView(),
+    splash: (context) => const SplashView(),
   };
 }

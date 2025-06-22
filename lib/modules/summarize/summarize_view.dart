@@ -198,7 +198,7 @@ class _SummarizeViewState extends State<SummarizeView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Summarize Text or File",
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -210,7 +210,7 @@ class _SummarizeViewState extends State<SummarizeView> {
             Text(
               'Paste text below or upload a PDF/TXT file to get a summary.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16.f, color: Colors.blueGrey),
+              style: TextStyle(fontSize: 16.f,),
             ),
             SizedBox(height: 20.h),
             TextField(
@@ -228,6 +228,9 @@ class _SummarizeViewState extends State<SummarizeView> {
               },
               decoration: InputDecoration(
                 labelText: 'Paste text here',
+                labelStyle: TextStyle(
+                  color: Colors.grey[600],
+                ),
                 hintText:
                 'You can type or paste any text you want to summarize...',
                 border: OutlineInputBorder(

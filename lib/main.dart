@@ -38,7 +38,7 @@ class MainApp extends StatelessWidget {
           themeMode: theme.themeMode,
           theme: AppThemes.lightTheme,
           darkTheme: AppThemes.darkTheme,
-          initialRoute: AppRoute.onboarding,
+          initialRoute: AppRoute.splash,
           routes: AppRoute.routes,
         );
       },

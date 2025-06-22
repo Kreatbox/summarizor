@@ -258,7 +258,7 @@ class _QuizViewState extends State<QuizView> {
     return Scaffold(
       appBar: AppBar(
         title:
-        const Text("Create a Quiz", style: TextStyle(color: Colors.white)),
+        const Text("Create a Quiz", style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -269,7 +269,7 @@ class _QuizViewState extends State<QuizView> {
           children: [
             Text(
               'Paste text or upload a file to generate a quiz.',
-              style: TextStyle(fontSize: 16.f, color: Colors.blueGrey),
+              style: TextStyle(fontSize: 16.f),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 16.h),
@@ -280,7 +280,10 @@ class _QuizViewState extends State<QuizView> {
               }),
               maxLines: 7,
               decoration: InputDecoration(
-                hintText: 'Paste text here...',
+               labelText:  'Paste text here...',
+                labelStyle: TextStyle(
+                  color: Colors.grey[600],
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),

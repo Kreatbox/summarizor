@@ -3,6 +3,7 @@ import 'package:summarizor/modules/log_in/log_in_controller.dart';
 import '../../core/constants/app_images.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/responsive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LogInView extends StatefulWidget {
   const LogInView({super.key});
@@ -25,17 +26,17 @@ class _LogInViewState extends State<LogInView> {
     super.dispose();
   }
 
-  void _showCustomDialog(
-      {required String title,
-        required String content,
-        required IconData iconData,
-        required Color iconColor}) {
+  void _showCustomDialog({
+    required String title,
+    required String content,
+    required IconData iconData,
+    required Color iconColor,
+  }) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
           icon: Icon(iconData, color: iconColor, size: 48),
           title: Text(title, textAlign: TextAlign.center),
           content: Text(content, textAlign: TextAlign.center),
@@ -44,8 +45,7 @@ class _LogInViewState extends State<LogInView> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
               ),
               child: const Text('OK', style: TextStyle(color: Colors.white)),
               onPressed: () {
@@ -63,13 +63,19 @@ class _LogInViewState extends State<LogInView> {
       setState(() {
         _isLoading = true;
       });
-
       try {
-        await _controller.login(
+        final userToken = await _controller.login(
           email: _emailController.text,
           password: _passwordController.text,
           context: context,
         );
+        if (userToken != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('user_token', userToken);
+          if (!mounted) return;
+
+          Navigator.pushReplacementNamed(context, '/home');
+        }
       } catch (e) {
         _showCustomDialog(
           title: 'Login Failed',
@@ -121,9 +127,7 @@ class _LogInViewState extends State<LogInView> {
                   ),
                   SizedBox(height: 40.h),
                   _isLoading
-                      ? CircularProgressIndicator(
-                    color: AppColors.primary,
-                  )
+                      ? CircularProgressIndicator(color: AppColors.primary)
                       : SizedBox(
                     width: double.infinity,
                     height: 50.h,
@@ -145,9 +149,7 @@ class _LogInViewState extends State<LogInView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        "Don't have an account?",
-                      ),
+                      const Text("Don't have an account?"),
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, "/signup");
@@ -175,8 +177,7 @@ class _LogInViewState extends State<LogInView> {
         errorStyle: const TextStyle(color: Colors.red),
         labelText: "Email",
         labelStyle: Theme.of(context).textTheme.labelLarge,
-        errorBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red)),
+        errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
         filled: true,
         fillColor: const Color(0x1A6BB5B8),
         border: OutlineInputBorder(
