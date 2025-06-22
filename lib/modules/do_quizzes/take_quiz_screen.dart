@@ -5,12 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:summarizor/core/services/responsive.dart';
 
-
 class TakeQuizScreen extends StatefulWidget {
   final Map<String, dynamic> quizData;
   final String quizId;
 
-  const TakeQuizScreen({super.key, required this.quizData, required this.quizId});
+  const TakeQuizScreen(
+      {super.key, required this.quizData, required this.quizId});
 
   @override
   State<TakeQuizScreen> createState() => _TakeQuizScreenState();
@@ -22,13 +22,20 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
   bool _quizSubmitted = false;
   int _correctAnswers = 0;
   int _wrongAnswers = 0;
-  final String _quizzesKey = 'generated_quizzes_list';
+  String? _userId;
 
   @override
   void initState() {
     super.initState();
     _loadQuestionsFromJson();
+    _getUserId();
   }
+
+  Future<void> _getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    _userId = prefs.getString('current_user_id'); // Example of getting user id
+  }
+
 
   void _loadQuestionsFromJson() {
     List<dynamic> questionsJson = widget.quizData['questions'] ?? [];
@@ -37,9 +44,44 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
     });
   }
 
+  void _showCustomDialog(
+      {required String title,
+        required String content,
+        required IconData iconData,
+        required Color iconColor}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          icon: Icon(iconData, color: iconColor, size: 48),
+          title: Text(title, textAlign: TextAlign.center),
+          content: Text(content, textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+              ),
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _saveQuizResults() async {
+    if (_userId == null) return;
     final prefs = await SharedPreferences.getInstance();
-    final String? quizzesJson = prefs.getString(_quizzesKey);
+    final String quizzesKey = 'generated_quizzes_list_$_userId';
+    final String? quizzesJson = prefs.getString(quizzesKey);
     List<dynamic> currentQuizzes = [];
 
     if (quizzesJson != null) {
@@ -51,20 +93,24 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
       currentQuizzes[quizIndex]['isCompleted'] = true;
       currentQuizzes[quizIndex]['correctAnswers'] = _correctAnswers;
       currentQuizzes[quizIndex]['wrongAnswers'] = _wrongAnswers;
-      await prefs.setString(_quizzesKey, json.encode(currentQuizzes));
+      await prefs.setString(quizzesKey, json.encode(currentQuizzes));
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Quiz results saved successfully!')),
-        );
+        _showCustomDialog(
+            title: 'Saved',
+            content: 'Your quiz results have been saved successfully!',
+            iconData: Icons.check_circle_outline_rounded,
+            iconColor: Colors.green);
       }
     }
   }
 
   void _submitQuiz() {
     if (_selectedAnswers.length != _questions.length) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please answer all questions before submitting.')),
-      );
+      _showCustomDialog(
+          title: 'Incomplete Quiz',
+          content: 'Please answer all questions before submitting.',
+          iconData: Icons.warning_amber_rounded,
+          iconColor: Colors.orange);
       return;
     }
 
@@ -74,7 +120,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
       final selectedAnswer = _selectedAnswers[i];
 
       String selectedKey = selectedAnswer!;
-      if(question.type == QuestionType.multipleChoice){
+      if (question.type == QuestionType.multipleChoice) {
         selectedKey = selectedAnswer.split(')').first.trim();
       }
 
@@ -98,7 +144,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
 
     String optionKey = option;
     String correctKey = question.correctAnswer;
-    if(question.type == QuestionType.multipleChoice){
+    if (question.type == QuestionType.multipleChoice) {
       optionKey = option.split(')').first.trim();
     }
 
@@ -127,26 +173,29 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
               itemBuilder: (context, index) {
                 final question = _questions[index];
                 return Card(
-                  margin:  10.0.pv,
+                  margin: 10.0.pv,
                   elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r)),
                   child: Padding(
-                    padding: 16.0.pv,
+                    padding: 16.0.p,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Question ${index + 1}: ${question.question}',
-                          style:  TextStyle(fontSize: 18.f, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 18.f, fontWeight: FontWeight.bold),
                         ),
-                         SizedBox(height: 15.h),
+                        SizedBox(height: 15.h),
                         ...question.options.map((option) {
                           return Padding(
-                            padding:  4.0.pv,
+                            padding: 4.0.pv,
                             child: RadioListTile<String>(
                               title: Text(
                                 option,
-                                style: TextStyle(color: _getOptionColor(index, option)),
+                                style: TextStyle(
+                                    color: _getOptionColor(index, option)),
                               ),
                               value: option,
                               groupValue: _selectedAnswers[index],
@@ -176,26 +225,34 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
               children: [
                 Card(
                   elevation: 4,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r)),
                   child: Padding(
                     padding: 16.0.p,
-                    child: Column(children: [
-                      Text(
-                        'Results: $_correctAnswers / ${_questions.length}',
-                        style: TextStyle(fontSize: 22.f, fontWeight: FontWeight.bold),
-                      ),
-                       SizedBox(height: 10.h),
-                      Text(
-                        'Correct: $_correctAnswers',
-                        style:  TextStyle(fontSize: 18.f, color: Colors.green),
-                      ),
-                      Text(
-                        'Wrong: $_wrongAnswers',
-                        style:  TextStyle(fontSize: 18.f, color: Colors.red),
-                      ),
-                    ],),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Results: $_correctAnswers / ${_questions.length}',
+                          style: TextStyle(
+                              fontSize: 22.f,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 10.h),
+                        Text(
+                          'Correct: $_correctAnswers',
+                          style: TextStyle(
+                              fontSize: 18.f, color: Colors.green),
+                        ),
+                        Text(
+                          'Wrong: $_wrongAnswers',
+                          style:
+                          TextStyle(fontSize: 18.f, color: Colors.red),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                 SizedBox(height: 20.h),
+                SizedBox(height: 20.h),
                 ElevatedButton(
                   onPressed: () async {
                     await _saveQuizResults();
@@ -205,6 +262,8 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r)),
                   ),
                   child: const Text('Finish and Save'),
                 ),
@@ -216,6 +275,8 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
               ),
               child: const Text('Submit Quiz'),
             ),

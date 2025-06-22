@@ -25,6 +25,68 @@ class _LogInViewState extends State<LogInView> {
     super.dispose();
   }
 
+  void _showCustomDialog(
+      {required String title,
+        required String content,
+        required IconData iconData,
+        required Color iconColor}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          icon: Icon(iconData, color: iconColor, size: 48),
+          title: Text(title, textAlign: TextAlign.center),
+          content: Text(content, textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+              ),
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleLogin() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        await _controller.login(
+          email: _emailController.text,
+          password: _passwordController.text,
+          context: context,
+        );
+      } catch (e) {
+        _showCustomDialog(
+          title: 'Login Failed',
+          content: e.toString(),
+          iconData: Icons.error_outline_rounded,
+          iconColor: Colors.red,
+        );
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +99,7 @@ class _LogInViewState extends State<LogInView> {
               width: 412.w,
             ),
             Padding(
-              padding:  20.ph+ 30.pv,
+              padding: 20.ph + 30.pv,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -60,40 +122,30 @@ class _LogInViewState extends State<LogInView> {
                   SizedBox(height: 40.h),
                   _isLoading
                       ? CircularProgressIndicator(
-                          color: AppColors.primary,
-                        )
+                    color: AppColors.primary,
+                  )
                       : SizedBox(
-                          width: double.infinity,
-                          height: 50.h,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                setState(() {
-                                  _isLoading = true;
-                                });
-                               _controller.login(email: _emailController.text, password: _passwordController.text, context: context);
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: Text(
-                              "Log In",
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ),
+                    width: double.infinity,
+                    height: 50.h,
+                    child: ElevatedButton(
+                      onPressed: _handleLogin,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
+                      ),
+                      child: Text(
+                        "Log In",
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 16.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         "Don't have an account?",
                       ),
                       TextButton(
@@ -120,27 +172,28 @@ class _LogInViewState extends State<LogInView> {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
-          errorStyle: const TextStyle(color: Colors.red),
+        errorStyle: const TextStyle(color: Colors.red),
         labelText: "Email",
         labelStyle: Theme.of(context).textTheme.labelLarge,
-          errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+        errorBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red)),
         filled: true,
-        fillColor:  Color(0x1A6BB5B8),
+        fillColor: const Color(0x1A6BB5B8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
           borderSide: BorderSide.none,
         ),
       ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter your Email';
-          }
-          if (!value.contains('@') || !value.contains('.com')) {
-            return 'Please enter a valid Email';
-          }
-          return null;
-        },
-      );
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your Email';
+        }
+        if (!value.contains('@') || !value.contains('.com')) {
+          return 'Please enter a valid Email';
+        }
+        return null;
+      },
+    );
   }
 
   Widget _buildPasswordField(TextEditingController controller) {
@@ -152,7 +205,7 @@ class _LogInViewState extends State<LogInView> {
         labelText: "Password",
         labelStyle: Theme.of(context).textTheme.labelLarge,
         filled: true,
-        fillColor:  Color(0x1A6BB5B8),
+        fillColor: const Color(0x1A6BB5B8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
           borderSide: BorderSide.none,
@@ -160,7 +213,7 @@ class _LogInViewState extends State<LogInView> {
         suffixIcon: IconButton(
           icon: Icon(
             _obscureText ? Icons.visibility_off : Icons.visibility,
-            color:  Color(0xFF6BB5B8),
+            color: const Color(0xFF6BB5B8),
           ),
           onPressed: () {
             setState(() {
@@ -169,12 +222,12 @@ class _LogInViewState extends State<LogInView> {
           },
         ),
       ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter your password';
-          }
-          return null;
-        },
-      );
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your password';
+        }
+        return null;
+      },
+    );
   }
 }

@@ -90,13 +90,13 @@ class AppThemes {
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
     primaryColor: AppColors.primary,
-    scaffoldBackgroundColor: Colors.black,
+    scaffoldBackgroundColor: AppColors.charcoal,
     textTheme: const TextTheme(
       displayLarge: TextStyle(
         fontFamily: 'poppinsreg',
         fontSize: 30,
         fontWeight: FontWeight.w400,
-        color: AppColors.grey,
+        color: AppColors.lightGrey,
       ),
       displayMedium: TextStyle(
         fontFamily: 'poppinsBold',
@@ -114,13 +114,13 @@ class AppThemes {
         fontFamily: 'poppinsBold',
         fontSize: 15,
         fontWeight: FontWeight.w400,
-        color: AppColors.grey,
+        color: AppColors.lightGrey,
       ),
       bodyMedium: TextStyle(
         fontFamily: 'poppinsBold',
         fontSize: 15,
         fontWeight: FontWeight.w400,
-        color: Colors.white,
+        color: Colors.white70,
       ),
       bodySmall: TextStyle(
         fontFamily: 'poppinsBold',
@@ -132,13 +132,13 @@ class AppThemes {
         fontFamily: 'poppinsreg',
         fontSize: 20,
         fontWeight: FontWeight.w300,
-        color: AppColors.darkGrey,
+        color: AppColors.grey,
       ),
       headlineLarge: TextStyle(
         fontFamily: 'poppinsreg',
         fontSize: 40,
         fontWeight: FontWeight.w300,
-        color: AppColors.grey,
+        color: AppColors.lightGrey,
       ),
       headlineMedium: TextStyle(
         fontFamily: 'poppinsBold',
@@ -150,14 +150,14 @@ class AppThemes {
         fontFamily: 'poppinsreg',
         fontSize: 25,
         fontWeight: FontWeight.w300,
-        color: AppColors.grey,
+        color: AppColors.lightGrey,
       ),
     ),
     colorScheme: ColorScheme.fromSwatch(brightness: Brightness.dark).copyWith(
       primary: AppColors.primary,
       secondary: AppColors.secondary,
       error: AppColors.error,
-      surface: Colors.black,
+      surface: AppColors.darkGrey,
       onSurface: Colors.white,
     ),
   );

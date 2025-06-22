@@ -41,15 +41,88 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
 
     if (quizzesJson != null) {
       final List<dynamic> decodedList = json.decode(quizzesJson);
-      setState(() {
-        _quizzes = decodedList;
-        _quizzes.sort((a, b) => (b['id'] as String).compareTo(a['id'] as String));
-      });
-    } else {
+      if (mounted) {
+        setState(() {
+          _quizzes = decodedList;
+          _quizzes
+              .sort((a, b) => (b['id'] as String).compareTo(a['id'] as String));
+        });
+      }
+    } else if (mounted) {
       setState(() {
         _quizzes = [];
       });
     }
+  }
+
+  void _showCustomDialog(
+      {required String title,
+        required String content,
+        required IconData iconData,
+        required Color iconColor}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          icon: Icon(iconData, color: iconColor, size: 48),
+          title: Text(title, textAlign: TextAlign.center),
+          content: Text(content, textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+              ),
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmationDialog(String quizId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          icon: Icon(Icons.warning_amber_rounded,
+              color: Colors.red[700], size: 48),
+          title: const Text('Confirm Deletion', textAlign: TextAlign.center),
+          content: const Text(
+              'Are you sure you want to permanently delete this quiz?',
+              textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[700],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+              ),
+              child: const Text('Delete', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteQuiz(quizId);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _deleteQuiz(String id) {
@@ -57,9 +130,11 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
       _quizzes.removeWhere((quiz) => quiz['id'] == id);
     });
     _saveQuizzes();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Quiz deleted successfully!')),
-    );
+    _showCustomDialog(
+        title: 'Deleted',
+        content: 'The quiz has been deleted successfully.',
+        iconData: Icons.check_circle_outline_rounded,
+        iconColor: Colors.green);
   }
 
   Future<void> _saveQuizzes() async {
@@ -73,7 +148,8 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TakeQuizScreen(quizData: quizData, quizId: quizId),
+        builder: (context) =>
+            TakeQuizScreen(quizData: quizData, quizId: quizId),
       ),
     ).then((_) {
       _loadQuizzes();
@@ -84,12 +160,13 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Available Quizzes", style: TextStyle(color: Colors.white)),
+        title: const Text("Available Quizzes",
+            style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _quizzes.isEmpty
-          ?  Center(
+          ? Center(
         child: Padding(
           padding: 24.0.p,
           child: Text(
@@ -113,24 +190,32 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
           return Card(
             margin: 8.0.pv,
             elevation: 6,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.r)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.r)),
             child: ListTile(
               contentPadding: 10.pv + 15.ph,
               leading: CircleAvatar(
                 backgroundColor: AppColors.primary,
                 child: Text(
                   '${index + 1}',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
               title: Text(
                 'Quiz with ${questions.length} questions',
-                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary),
               ),
               subtitle: Text(
-                isCompleted ? 'Completed: $correct correct, $wrong wrong' : 'Ready to take',
+                isCompleted
+                    ? 'Completed: $correct correct, $wrong wrong'
+                    : 'Ready to take',
                 style: TextStyle(
-                  color: isCompleted ? (correct >= wrong ? Colors.green : Colors.red) : null,
+                  color: isCompleted
+                      ? (correct >= wrong ? Colors.green : Colors.red)
+                      : null,
                 ),
               ),
               trailing: Row(
@@ -139,17 +224,23 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                   if (isCompleted)
                     IconButton(
                       icon: const Icon(Icons.refresh, color: Colors.blue),
-                      onPressed: () => _navigateToTakeQuiz(quiz['quizData'] as Map<String, dynamic>, quiz['id'] as String),
+                      onPressed: () => _navigateToTakeQuiz(
+                          quiz['quizData'] as Map<String, dynamic>,
+                          quiz['id'] as String),
                       tooltip: 'Retake Quiz',
                     ),
                   IconButton(
-                    icon: Icon(Icons.delete_forever, color: Colors.red[700]),
-                    onPressed: () => _deleteQuiz(quiz['id'] as String),
+                    icon:
+                    Icon(Icons.delete_forever, color: Colors.red[700]),
+                    onPressed: () =>
+                        _showDeleteConfirmationDialog(quiz['id'] as String),
                     tooltip: 'Delete this quiz',
                   ),
                 ],
               ),
-              onTap: () => _navigateToTakeQuiz(quiz['quizData'] as Map<String, dynamic>, quiz['id'] as String),
+              onTap: () => _navigateToTakeQuiz(
+                  quiz['quizData'] as Map<String, dynamic>,
+                  quiz['id'] as String),
             ),
           );
         },

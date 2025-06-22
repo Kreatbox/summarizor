@@ -7,7 +7,6 @@ import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:summarizor/core/services/responsive.dart';
 
-
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
 
@@ -24,6 +23,40 @@ class _SettingsViewState extends State<SettingsView> {
     super.dispose();
   }
 
+  void _showCustomDialog({
+    required String title,
+    required String content,
+    required IconData iconData,
+    required Color iconColor,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          icon: Icon(iconData, color: iconColor, size: 48),
+          title: Text(title, textAlign: TextAlign.center),
+          content: Text(content, textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+              ),
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _showEditNameDialog() async {
     final cacheManager = CacheManager();
     final user = await cacheManager.getUser();
@@ -34,14 +67,14 @@ class _SettingsViewState extends State<SettingsView> {
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Edit Name'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 const Text('Please enter your new name.'),
-                 SizedBox(height: 16.h),
+                SizedBox(height: 16.h),
                 TextField(
                   controller: _nameController,
                   decoration: const InputDecoration(
@@ -56,7 +89,7 @@ class _SettingsViewState extends State<SettingsView> {
             TextButton(
               child: const Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
             ),
             FilledButton(
@@ -66,6 +99,8 @@ class _SettingsViewState extends State<SettingsView> {
                 if (newName.isEmpty || user == null) {
                   return;
                 }
+
+                Navigator.of(dialogContext).pop();
 
                 try {
                   await FirebaseFirestore.instance
@@ -77,22 +112,28 @@ class _SettingsViewState extends State<SettingsView> {
                   await cacheManager.saveUser(updatedUser);
 
                   if (mounted) {
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("The name has been updated successfully")),
+                    _showCustomDialog(
+                      title: 'Success',
+                      content: 'Your name has been updated successfully.',
+                      iconData: Icons.check_circle_outline_rounded,
+                      iconColor: Colors.green,
                     );
                   }
                 } catch (e) {
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Failed to update name. Please try again.")),
+                    _showCustomDialog(
+                      title: 'Error',
+                      content: 'Failed to update name. Please try again.',
+                      iconData: Icons.error_outline_rounded,
+                      iconColor: Colors.red,
                     );
                   }
                 }
               },
             ),
           ],
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
         );
       },
     );
@@ -105,14 +146,14 @@ class _SettingsViewState extends State<SettingsView> {
         final isDarkMode = theme.themeMode == ThemeMode.dark;
 
         return Scaffold(
-          backgroundColor: isDarkMode ? Colors.black : Colors.white,
+          backgroundColor: isDarkMode ? AppColors.charcoal : Colors.white,
           appBar: AppBar(
             title: const Text("Settings"),
             backgroundColor: AppColors.primary,
             iconTheme: const IconThemeData(
               color: Colors.white,
             ),
-            titleTextStyle:  TextStyle(
+            titleTextStyle: TextStyle(
               color: Colors.white,
               fontSize: 20.f,
               fontWeight: FontWeight.bold,
@@ -168,7 +209,7 @@ class _SettingsViewState extends State<SettingsView> {
     final Color iconColor = AppColors.primary;
 
     return Container(
-      margin:  16.0.ph + 8.0.pv,
+      margin: 16.0.ph + 8.0.pv,
       decoration: BoxDecoration(
         color: isDarkMode ? AppColors.darkGrey : Colors.white,
         borderRadius: BorderRadius.circular(12.0.r),
@@ -189,12 +230,11 @@ class _SettingsViewState extends State<SettingsView> {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12.0.r),
           child: Padding(
-            padding:
-            20.0.ph + 16.0.pv,
+            padding: 20.0.ph + 16.0.pv,
             child: Row(
               children: [
                 Icon(icon, color: iconColor),
-                 SizedBox(width: 20.w),
+                SizedBox(width: 20.w),
                 Expanded(
                   child: Text(
                     title,

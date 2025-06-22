@@ -7,7 +7,6 @@ import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/modules/do_quizzes/take_quiz_screen.dart';
 import 'package:summarizor/core/services/responsive.dart';
 
-
 class SummaryQuizzesView extends StatefulWidget {
   const SummaryQuizzesView({super.key});
 
@@ -49,15 +48,88 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
             quiz['quizData'] != null;
       }).toList();
 
-      setState(() {
-        _quizzes = validQuizzes;
-        _quizzes.sort((a, b) => (b['id'] as String).compareTo(a['id'] as String));
-      });
-    } else {
+      if (mounted) {
+        setState(() {
+          _quizzes = validQuizzes;
+          _quizzes
+              .sort((a, b) => (b['id'] as String).compareTo(a['id'] as String));
+        });
+      }
+    } else if (mounted) {
       setState(() {
         _quizzes = [];
       });
     }
+  }
+
+  void _showCustomDialog(
+      {required String title,
+        required String content,
+        required IconData iconData,
+        required Color iconColor}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          icon: Icon(iconData, color: iconColor, size: 48),
+          title: Text(title, textAlign: TextAlign.center),
+          content: Text(content, textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+              ),
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmationDialog(String quizId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          icon: Icon(Icons.warning_amber_rounded,
+              color: Colors.red[700], size: 48),
+          title: const Text('Confirm Deletion', textAlign: TextAlign.center),
+          content: const Text(
+              'Are you sure you want to permanently delete this quiz?',
+              textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[700],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+              ),
+              child: const Text('Delete', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteQuiz(quizId);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _deleteQuiz(String id) {
@@ -65,9 +137,11 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
       _quizzes.removeWhere((quiz) => quiz['id'] == id);
     });
     _saveQuizzes();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Quiz deleted successfully!')),
-    );
+    _showCustomDialog(
+        title: 'Deleted',
+        content: 'The quiz has been deleted successfully.',
+        iconData: Icons.check_circle_outline_rounded,
+        iconColor: Colors.green);
   }
 
   Future<void> _saveQuizzes() async {
@@ -81,12 +155,13 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Saved Quizzes", style: TextStyle(color: Colors.white)),
+        title:
+        const Text("Saved Quizzes", style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _quizzes.isEmpty
-          ?  Center(
+          ? Center(
         child: Padding(
           padding: 24.0.p,
           child: Text(
@@ -105,7 +180,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
           final questions = quizData['questions'] as List<dynamic>;
 
           return Card(
-            margin:  8.0.pv,
+            margin: 8.0.pv,
             elevation: 5,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15.r),
@@ -128,10 +203,12 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
               ),
               children: [
                 Padding(
-                  padding:  EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+                  padding:
+                  EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: List.generate(questions.length, (qIndex) {
+                    children:
+                    List.generate(questions.length, (qIndex) {
                       final question =
                       questions[qIndex] as Map<String, dynamic>;
                       final options = question['options'] as List<dynamic>;
@@ -139,18 +216,18 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                       question['correctAnswer'] as String;
 
                       return Padding(
-                        padding:  only(bottom: 16.0.h),
+                        padding: only(bottom: 16.0.h),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Q${qIndex + 1}: ${question['question']}',
-                              style:  TextStyle(
+                              style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16.f,
                                   color: Colors.black87),
                             ),
-                             SizedBox(height: 8.h),
+                            SizedBox(height: 8.h),
                             ...List.generate(options.length, (optIndex) {
                               final option = options[optIndex] as String;
                               final String optionKey =
@@ -161,8 +238,8 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                               (optionKey == correctAnswer);
 
                               return Padding(
-                                padding: only(
-                                    left: 8.0.w, top: 4.0.h),
+                                padding:
+                                only(left: 8.0.w, top: 4.0.h),
                                 child: Text(
                                   option,
                                   style: TextStyle(
@@ -184,19 +261,20 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                   ),
                 ),
                 Padding(
-                  padding:  only(right: 8.0.w, bottom: 8.0.h),
+                  padding: only(right: 8.0.w, bottom: 8.0.h),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.edit_note, color: Colors.blue[700]),
+                        icon: Icon(Icons.edit_note,
+                            color: Colors.blue[700]),
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-
                               builder: (context) => TakeQuizScreen(
-                                quizData: quiz['quizData'] as Map<String, dynamic>,
+                                quizData: quiz['quizData']
+                                as Map<String, dynamic>,
                                 quizId: quiz['id'] as String,
                               ),
                             ),
@@ -211,13 +289,11 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                             color: Theme.of(context).primaryColor),
                         onPressed: () {
                           final StringBuffer buffer = StringBuffer();
-                          for (var i = 0;
-                          i < questions.length;
-                          i++) {
+                          for (var i = 0; i < questions.length; i++) {
                             final q =
                             questions[i] as Map<String, dynamic>;
-                            buffer.writeln(
-                                'Q${i + 1}: ${q['question']}');
+                            buffer
+                                .writeln('Q${i + 1}: ${q['question']}');
                             final opts = q['options'] as List<dynamic>;
                             for (final option in opts) {
                               buffer.writeln('- $option');
@@ -228,19 +304,20 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                           }
                           Clipboard.setData(
                               ClipboardData(text: buffer.toString()));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content:
-                                Text('Quiz copied to clipboard!')),
-                          );
+                          _showCustomDialog(
+                              title: 'Copied',
+                              content:
+                              'The quiz has been copied to your clipboard.',
+                              iconData: Icons.copy_all_rounded,
+                              iconColor: AppColors.primary);
                         },
                         tooltip: 'Copy Quiz Summary',
                       ),
                       IconButton(
                         icon: Icon(Icons.delete_forever,
                             color: Colors.red[700]),
-                        onPressed: () =>
-                            _deleteQuiz(quiz['id'] as String),
+                        onPressed: () => _showDeleteConfirmationDialog(
+                            quiz['id'] as String),
                         tooltip: 'Delete this quiz',
                       ),
                     ],

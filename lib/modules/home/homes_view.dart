@@ -6,7 +6,6 @@ import 'package:summarizor/core/services/responsive.dart';
 import 'package:summarizor/core/constants/app_images.dart';
 import '../../core/services/navigation.dart';
 
-
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
@@ -60,9 +59,10 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -78,7 +78,7 @@ class _HomeViewState extends State<HomeView> {
         ),
       ),
       drawer: Drawer(
-        shape:  RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topRight: Radius.circular(25.r),
             bottomRight: Radius.circular(25.r),
@@ -89,17 +89,17 @@ class _HomeViewState extends State<HomeView> {
             UserAccountsDrawerHeader(
               accountName: Text(
                 fullName ?? "Guest User",
-                style:  TextStyle(fontWeight: FontWeight.bold, fontSize: 18.f),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.f),
               ),
               accountEmail: Text(email ?? ""),
               currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.white,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 child: Text(
                   _getInitials(fullName),
                   style: TextStyle(fontSize: 24.0.f, color: AppColors.primary),
                 ),
               ),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.primary,
               ),
             ),
@@ -179,12 +179,14 @@ class _HomeViewState extends State<HomeView> {
       ),
       body: Stack(
         children: [
-          Image.asset(Images.placeholderImage, fit: BoxFit.cover, width: double.infinity.w, height: double.infinity.h),
+          Image.asset(Images.placeholderImage,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w),
             child: ListView(
               children: [
-
                 Text(
                   'Hello,',
                   style: Theme.of(context).textTheme.headlineLarge,
@@ -202,7 +204,9 @@ class _HomeViewState extends State<HomeView> {
                     margin: EdgeInsets.only(bottom: 20.h),
                     padding: EdgeInsets.all(20.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF7F6),
+                      color: isDarkMode
+                          ? AppColors.darkGrey
+                          : const Color(0xFFEFF7F6),
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Column(
@@ -228,7 +232,9 @@ class _HomeViewState extends State<HomeView> {
                   child: Container(
                     padding: EdgeInsets.all(20.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF7F6),
+                      color: isDarkMode
+                          ? AppColors.darkGrey
+                          : const Color(0xFFEFF7F6),
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Column(

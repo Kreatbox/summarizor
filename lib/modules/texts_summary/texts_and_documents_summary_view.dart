@@ -6,7 +6,6 @@ import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/core/services/responsive.dart';
 
-
 class TextsAndDocumentsSummaryView extends StatefulWidget {
   const TextsAndDocumentsSummaryView({super.key});
 
@@ -36,7 +35,9 @@ class _TextsAndDocumentsSummaryViewState
       });
       await _loadSummaries();
     }
-    setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _loadSummaries() async {
@@ -47,12 +48,18 @@ class _TextsAndDocumentsSummaryViewState
 
     if (summariesJson != null) {
       final List<dynamic> decodedList = json.decode(summariesJson);
-      _summaries =
-          decodedList.map((item) => Map<String, String>.from(item)).toList();
-      _summaries.sort((a, b) => b['id']!.compareTo(a['id']!));
-    }
-    else {
-      _summaries = [];
+      if (mounted) {
+        setState(() {
+          _summaries = decodedList
+              .map((item) => Map<String, String>.from(item))
+              .toList();
+          _summaries.sort((a, b) => b['id']!.compareTo(a['id']!));
+        });
+      }
+    } else if (mounted) {
+      setState(() {
+        _summaries = [];
+      });
     }
   }
 
@@ -64,21 +71,94 @@ class _TextsAndDocumentsSummaryViewState
     await prefs.setString(userSummariesKey, summariesJson);
   }
 
+  void _showCustomDialog(
+      {required String title,
+        required String content,
+        required IconData iconData,
+        required Color iconColor}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          icon: Icon(iconData, color: iconColor, size: 48),
+          title: Text(title, textAlign: TextAlign.center),
+          content: Text(content, textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+              ),
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmationDialog(String summaryId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          icon: Icon(Icons.warning_amber_rounded,
+              color: Colors.red[700], size: 48),
+          title: const Text('Confirm Deletion', textAlign: TextAlign.center),
+          content: const Text(
+              'Are you sure you want to permanently delete this summary?',
+              textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[700],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+              ),
+              child: const Text('Delete', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteSummary(summaryId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _deleteSummary(String id) {
     setState(() {
       _summaries.removeWhere((summary) => summary['id'] == id);
     });
     _saveSummaries();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Summary deleted successfully!')),
-    );
+    _showCustomDialog(
+        title: 'Deleted',
+        content: 'The summary has been deleted successfully.',
+        iconData: Icons.check_circle_outline_rounded,
+        iconColor: Colors.green);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Saved Summaries", style: TextStyle(color: Colors.white)),
+        title:
+        const Text("Saved Summaries", style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(
           color: Colors.white,
@@ -87,9 +167,9 @@ class _TextsAndDocumentsSummaryViewState
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _summaries.isEmpty
-          ?  Center(
+          ? Center(
         child: Padding(
-          padding:24.0.p,
+          padding: 24.0.p,
           child: Text(
             'There are no summaries saved for this account yet.',
             style: TextStyle(fontSize: 18.f, color: Colors.blueGrey),
@@ -103,7 +183,7 @@ class _TextsAndDocumentsSummaryViewState
         itemBuilder: (context, index) {
           final summary = _summaries[index];
           return Card(
-            margin:  8.0.pv,
+            margin: 8.0.pv,
             elevation: 4,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.r),
@@ -112,7 +192,7 @@ class _TextsAndDocumentsSummaryViewState
               leading: CircleAvatar(
                 backgroundColor: AppColors.primary.withOpacity(0.8),
                 child: Text(
-                  '${index + 1}',
+                  '${_summaries.length - index}',
                   style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold),
@@ -126,16 +206,17 @@ class _TextsAndDocumentsSummaryViewState
                 ),
               ),
               childrenPadding:
-               EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+              EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
               children: [
                 Padding(
                   padding: only(bottom: 8.0.h),
                   child: Text(
                     summary['content']!,
-                    style:  TextStyle(
+                    style: TextStyle(
                         fontSize: 16.f,
-                        height: 1.5.h,
-                        color: Colors.black87),
+                        height: 1.5,
+                        color: Theme.of(context).textTheme.bodyMedium?.color
+                    ),
                   ),
                 ),
                 Align(
@@ -144,18 +225,26 @@ class _TextsAndDocumentsSummaryViewState
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.copy, color: Theme.of(context).primaryColor),
+                        icon: Icon(Icons.copy,
+                            color: Theme.of(context).primaryColor),
                         onPressed: () {
-                          Clipboard.setData(ClipboardData(text: summary['content']!));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Summary copied to clipboard!')),
-                          );
+                          Clipboard.setData(
+                              ClipboardData(text: summary['content']!));
+                          _showCustomDialog(
+                              title: 'Copied',
+                              content:
+                              'The summary has been copied to your clipboard.',
+                              iconData: Icons.copy_all_rounded,
+                              iconColor: AppColors.primary);
                         },
                         tooltip: 'Copy Summary',
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete_outline, color: Colors.red[600]),
-                        onPressed: () => _deleteSummary(summary['id']!),
+                        icon: Icon(Icons.delete_outline,
+                            color: Colors.red[600]),
+                        onPressed: () =>
+                            _showDeleteConfirmationDialog(
+                                summary['id']!),
                         tooltip: 'Delete this summary',
                       ),
                     ],

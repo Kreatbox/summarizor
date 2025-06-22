@@ -9,9 +9,7 @@ import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/core/services/gemini_service.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import '../do_quizzes/do_quizzes_view.dart';
 import 'package:summarizor/core/services/responsive.dart';
-
 
 class QuizView extends StatefulWidget {
   const QuizView({super.key});
@@ -25,6 +23,7 @@ class _QuizViewState extends State<QuizView> {
   bool isLoading = false;
   final TextEditingController textController = TextEditingController();
   String? _userId;
+  Map<String, dynamic>? _generatedQuiz;
 
   @override
   void initState() {
@@ -41,6 +40,40 @@ class _QuizViewState extends State<QuizView> {
     }
   }
 
+  void _showCustomDialog({
+    required String title,
+    required String content,
+    required IconData iconData,
+    required Color iconColor,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          icon: Icon(iconData, color: iconColor, size: 48),
+          title: Text(title, textAlign: TextAlign.center),
+          content: Text(content, textAlign: TextAlign.center),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+              ),
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowedExtensions: ['pdf', 'txt'],
@@ -51,11 +84,12 @@ class _QuizViewState extends State<QuizView> {
       setState(() {
         file = result.files.single;
         textController.clear();
+        _generatedQuiz = null;
       });
     }
   }
 
-  Future<void> _saveQuizAndNavigate(Map<String, dynamic> quizData) async {
+  Future<void> _saveQuiz(Map<String, dynamic> quizData) async {
     if (_userId == null) return;
 
     final prefs = await SharedPreferences.getInstance();
@@ -67,28 +101,30 @@ class _QuizViewState extends State<QuizView> {
       currentQuizzes = json.decode(quizzesJson);
     }
 
+    String quizTitle = "New Quiz";
+    if (quizData.containsKey('questions') &&
+        (quizData['questions'] as List).isNotEmpty) {
+      quizTitle = quizData['questions'][0]['question'];
+      if (quizTitle.length > 50) {
+        quizTitle = "${quizTitle.substring(0, 50)}...";
+      }
+    }
+
     currentQuizzes.add({
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'title': quizTitle,
       'quizData': quizData,
       'isCompleted': false,
       'correctAnswers': 0,
       'wrongAnswers': 0,
     });
     await prefs.setString(userQuizzesKey, json.encode(currentQuizzes));
-
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const DoQuizzesView(),
-        ),
-      );
-    }
   }
 
   Future<void> generateQuiz() async {
     setState(() {
       isLoading = true;
+      _generatedQuiz = null;
     });
 
     try {
@@ -96,9 +132,11 @@ class _QuizViewState extends State<QuizView> {
 
       if (file != null) {
         if (kIsWeb || file!.path == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text("File processing is not supported on web.")),
+          _showCustomDialog(
+            title: 'Unsupported Platform',
+            content: 'File processing is not supported on web.',
+            iconData: Icons.error_outline_rounded,
+            iconColor: Colors.red,
           );
           setState(() => isLoading = false);
           return;
@@ -112,8 +150,11 @@ class _QuizViewState extends State<QuizView> {
         } else if (file!.extension?.toLowerCase() == 'txt') {
           content = await File(file!.path!).readAsString();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Unsupported file type.")),
+          _showCustomDialog(
+            title: 'Unsupported File',
+            content: 'Please upload a PDF or TXT file.',
+            iconData: Icons.error_outline_rounded,
+            iconColor: Colors.red,
           );
           setState(() => isLoading = false);
           return;
@@ -121,8 +162,11 @@ class _QuizViewState extends State<QuizView> {
       } else if (textController.text.trim().isNotEmpty) {
         content = textController.text.trim();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please paste text or upload a file.")),
+        _showCustomDialog(
+          title: 'Input Required',
+          content: 'Please paste text or upload a file first.',
+          iconData: Icons.warning_amber_rounded,
+          iconColor: Colors.orange,
         );
         setState(() => isLoading = false);
         return;
@@ -162,23 +206,51 @@ class _QuizViewState extends State<QuizView> {
         final cleanedResponse =
         response.replaceAll("```json", "").replaceAll("```", "").trim();
         final quizData = json.decode(cleanedResponse) as Map<String, dynamic>;
-        await _saveQuizAndNavigate(quizData);
+
+        await _saveQuiz(quizData);
+
+        if (mounted) {
+          _showCustomDialog(
+            title: 'Success',
+            content: 'Quiz generated and saved successfully!',
+            iconData: Icons.check_circle_outline_rounded,
+            iconColor: Colors.green,
+          );
+          setState(() {
+            _generatedQuiz = quizData;
+          });
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content:
-              Text("Failed to generate quiz. Daily limit may be exceeded.")),
+        _showCustomDialog(
+          title: 'Failed',
+          content:
+          'Failed to generate quiz. Your daily limit may have been exceeded.',
+          iconData: Icons.error_outline_rounded,
+          iconColor: Colors.red,
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("An error occurred: $e")),
-      );
+      if (mounted) {
+        _showCustomDialog(
+          title: 'Error',
+          content: "An unexpected error occurred: ${e.toString()}",
+          iconData: Icons.error_outline_rounded,
+          iconColor: Colors.red,
+        );
+      }
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
       }
     }
+  }
+
+  void _resetView() {
+    setState(() {
+      _generatedQuiz = null;
+      file = null;
+      textController.clear();
+    });
   }
 
   @override
@@ -191,18 +263,21 @@ class _QuizViewState extends State<QuizView> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-             Text(
+            Text(
               'Paste text or upload a file to generate a quiz.',
               style: TextStyle(fontSize: 16.f, color: Colors.blueGrey),
               textAlign: TextAlign.center,
             ),
-             SizedBox(height: 16.h),
+            SizedBox(height: 16.h),
             TextField(
               controller: textController,
+              onTap: () => setState(() {
+                file = null;
+              }),
               maxLines: 7,
               decoration: InputDecoration(
                 hintText: 'Paste text here...',
@@ -213,21 +288,21 @@ class _QuizViewState extends State<QuizView> {
                 fillColor: Colors.grey[50],
               ),
             ),
-             SizedBox(height: 16.h),
-             Center(
+            SizedBox(height: 16.h),
+            Center(
               child: Text(
                 'OR',
                 style: TextStyle(fontSize: 16.f, fontWeight: FontWeight.bold),
               ),
             ),
-             SizedBox(height: 16.h),
+            SizedBox(height: 16.h),
             GestureDetector(
-              onTap: pickFile,
+              onTap: isLoading ? null : pickFile,
               child: DottedBorder(
                 dashPattern: const [6, 3],
                 color: Colors.grey,
                 borderType: BorderType.RRect,
-                radius:  Radius.circular(12.r),
+                radius: Radius.circular(12.r),
                 strokeWidth: 2,
                 child: Container(
                   height: 130.h,
@@ -237,12 +312,12 @@ class _QuizViewState extends State<QuizView> {
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: file == null
-                      ?  Column(
+                      ? const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.upload_file,
                           size: 40, color: Colors.grey),
-                      SizedBox(height: 10.h),
+                      SizedBox(height: 10.0),
                       Text("Click to Upload File"),
                     ],
                   )
@@ -251,10 +326,9 @@ class _QuizViewState extends State<QuizView> {
                     children: [
                       const Icon(Icons.check_circle,
                           size: 40, color: Colors.green),
-                       SizedBox(height: 10.h),
+                      SizedBox(height: 10.h),
                       Padding(
-                        padding:
-                          8.0.ph,
+                        padding: EdgeInsets.symmetric(horizontal: 8.w),
                         child: Text(
                           "Uploaded: ${file!.name}",
                           textAlign: TextAlign.center,
@@ -266,11 +340,9 @@ class _QuizViewState extends State<QuizView> {
                 ),
               ),
             ),
-             SizedBox(height: 24.h),
-            isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton.icon(
-              onPressed: generateQuiz,
+            SizedBox(height: 24.h),
+            ElevatedButton.icon(
+              onPressed: isLoading ? null : generateQuiz,
               icon: const Icon(Icons.quiz, color: Colors.white),
               label: const Text("Generate Quiz",
                   style: TextStyle(color: Colors.white)),
@@ -281,8 +353,107 @@ class _QuizViewState extends State<QuizView> {
                     borderRadius: BorderRadius.circular(12.r)),
               ),
             ),
+            if (isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24.0),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            if (_generatedQuiz != null) _buildQuizDisplaySection(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildQuizDisplaySection() {
+    final questions = (_generatedQuiz?['questions'] as List?) ?? [];
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Quiz Results',
+                style: TextStyle(fontSize: 20.f, fontWeight: FontWeight.bold),
+              ),
+              TextButton(
+                onPressed: _resetView,
+                child: const Text('Clear Results'),
+              )
+            ],
+          ),
+          const Divider(height: 24),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: questions.length,
+            itemBuilder: (context, index) {
+              final questionData = questions[index];
+              final String questionText = questionData['question'] ?? '';
+              final List<String> options =
+              List<String>.from(questionData['options'] ?? []);
+              final String correctAnswer = questionData['correctAnswer'] ?? '';
+
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Question ${index + 1}: $questionText',
+                        style: TextStyle(
+                          fontSize: 16.f,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ...options.map((option) {
+                        bool isCorrect = (questionData['type'] == 'trueFalse')
+                            ? option == correctAnswer
+                            : option.startsWith(correctAnswer);
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            children: [
+                              if (isCorrect)
+                                Icon(Icons.check_circle,
+                                    color: Colors.green, size: 20),
+                              if (!isCorrect)
+                                Icon(Icons.radio_button_unchecked,
+                                    color: Colors.grey, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  option,
+                                  style: TextStyle(
+                                    fontSize: 15.f,
+                                    color: isCorrect ? Colors.green : null,
+                                    fontWeight: isCorrect
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
