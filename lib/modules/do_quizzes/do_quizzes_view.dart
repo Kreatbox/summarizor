@@ -145,11 +145,15 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
   }
 
   void _navigateToTakeQuiz(Map<String, dynamic> quizData, String quizId) {
+    if (_userId == null) return;
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            TakeQuizScreen(quizData: quizData, quizId: quizId),
+        builder: (context) => TakeQuizScreen(
+          quizData: quizData,
+          quizId: quizId,
+          userId: _userId!,
+        ),
       ),
     ).then((_) {
       _loadQuizzes();
@@ -181,6 +185,10 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
         itemCount: _quizzes.length,
         itemBuilder: (context, index) {
           final quiz = _quizzes[index];
+          if (quiz['quizData'] == null ||
+              quiz['quizData']['questions'] == null) {
+            return const SizedBox.shrink();
+          }
           final quizData = quiz['quizData'] as Map<String, dynamic>;
           final questions = quizData['questions'] as List<dynamic>;
           bool isCompleted = quiz['isCompleted'] ?? false;
@@ -208,15 +216,30 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary),
               ),
-              subtitle: Text(
-                isCompleted
-                    ? 'Completed: $correct correct, $wrong wrong'
-                    : 'Ready to take',
-                style: TextStyle(
-                  color: isCompleted
-                      ? (correct >= wrong ? Colors.green : Colors.red)
-                      : null,
+              subtitle: isCompleted
+                  ? RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                      color: Colors.grey.shade600, fontSize: 14),
+                  children: <TextSpan>[
+                    const TextSpan(text: 'Result: '),
+                    TextSpan(
+                        text: '$correct correct',
+                        style: TextStyle(
+                            color: Colors.green[700],
+                            fontWeight: FontWeight.w500)),
+                    const TextSpan(text: ', '),
+                    TextSpan(
+                        text: '$wrong wrong',
+                        style: TextStyle(
+                            color: Colors.red[700],
+                            fontWeight: FontWeight.w500)),
+                  ],
                 ),
+              )
+                  : Text(
+                'Not yet taken. Tap to start.',
+                style: TextStyle(color: Colors.grey.shade600),
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -230,10 +253,10 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                       tooltip: 'Retake Quiz',
                     ),
                   IconButton(
-                    icon:
-                    Icon(Icons.delete_forever, color: Colors.red[700]),
-                    onPressed: () =>
-                        _showDeleteConfirmationDialog(quiz['id'] as String),
+                    icon: Icon(Icons.delete_forever,
+                        color: Colors.red[700]),
+                    onPressed: () => _showDeleteConfirmationDialog(
+                        quiz['id'] as String),
                     tooltip: 'Delete this quiz',
                   ),
                 ],

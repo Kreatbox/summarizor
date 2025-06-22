@@ -8,9 +8,14 @@ import 'package:summarizor/core/services/responsive.dart';
 class TakeQuizScreen extends StatefulWidget {
   final Map<String, dynamic> quizData;
   final String quizId;
+  final String userId;
 
-  const TakeQuizScreen(
-      {super.key, required this.quizData, required this.quizId});
+  const TakeQuizScreen({
+    super.key,
+    required this.quizData,
+    required this.quizId,
+    required this.userId,
+  });
 
   @override
   State<TakeQuizScreen> createState() => _TakeQuizScreenState();
@@ -18,24 +23,16 @@ class TakeQuizScreen extends StatefulWidget {
 
 class _TakeQuizScreenState extends State<TakeQuizScreen> {
   List<QuizQuestion> _questions = [];
-  Map<int, String> _selectedAnswers = {};
+  final Map<int, String> _selectedAnswers = {};
   bool _quizSubmitted = false;
   int _correctAnswers = 0;
   int _wrongAnswers = 0;
-  String? _userId;
 
   @override
   void initState() {
     super.initState();
     _loadQuestionsFromJson();
-    _getUserId();
   }
-
-  Future<void> _getUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    _userId = prefs.getString('current_user_id'); // Example of getting user id
-  }
-
 
   void _loadQuestionsFromJson() {
     List<dynamic> questionsJson = widget.quizData['questions'] ?? [];
@@ -44,11 +41,12 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
     });
   }
 
-  void _showCustomDialog(
-      {required String title,
-        required String content,
-        required IconData iconData,
-        required Color iconColor}) {
+  void _showCustomDialog({
+    required String title,
+    required String content,
+    required IconData iconData,
+    required Color iconColor,
+  }) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -78,9 +76,8 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
   }
 
   Future<void> _saveQuizResults() async {
-    if (_userId == null) return;
     final prefs = await SharedPreferences.getInstance();
-    final String quizzesKey = 'generated_quizzes_list_$_userId';
+    final String quizzesKey = 'generated_quizzes_list_${widget.userId}';
     final String? quizzesJson = prefs.getString(quizzesKey);
     List<dynamic> currentQuizzes = [];
 
@@ -94,13 +91,6 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
       currentQuizzes[quizIndex]['correctAnswers'] = _correctAnswers;
       currentQuizzes[quizIndex]['wrongAnswers'] = _wrongAnswers;
       await prefs.setString(quizzesKey, json.encode(currentQuizzes));
-      if (mounted) {
-        _showCustomDialog(
-            title: 'Saved',
-            content: 'Your quiz results have been saved successfully!',
-            iconData: Icons.check_circle_outline_rounded,
-            iconColor: Colors.green);
-      }
     }
   }
 

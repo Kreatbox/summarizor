@@ -275,7 +275,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                               builder: (context) => TakeQuizScreen(
                                 quizData: quiz['quizData']
                                 as Map<String, dynamic>,
-                                quizId: quiz['id'] as String,
+                                quizId: quiz['id'] as String, userId: '',
                               ),
                             ),
                           ).then((_) {
