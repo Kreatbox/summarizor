@@ -131,7 +131,7 @@ class _HomeViewState extends State<HomeView> {
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.article),
-                      title: const Text('Texts and Documents Summary'),
+                      title: const Text('Saved Text & Document Summaries'),
                       onTap: () {
                         Navigation.pop_(context);
                         Navigation.navigateTo(context, AppRoute.textsSummary);
@@ -139,7 +139,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.list_alt),
-                      title: const Text('Summary Quizzes'),
+                      title: const Text('Saved Summary Quizzes'),
                       onTap: () {
                         Navigation.pop_(context);
                         Navigation.navigateTo(context, AppRoute.summaryQuizzes);
