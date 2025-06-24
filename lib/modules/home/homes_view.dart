@@ -84,97 +84,105 @@ class _HomeViewState extends State<HomeView> {
             bottomRight: Radius.circular(25.r),
           ),
         ),
-        child: Column(
-          children: [
-            UserAccountsDrawerHeader(
-              accountName: Text(
-                fullName ?? "Guest User",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.f),
-              ),
-              accountEmail: Text(email ?? ""),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                child: Text(
-                  _getInitials(fullName),
-                  style: TextStyle(fontSize: 24.0.f, color: AppColors.primary),
+        child: DividerTheme(
+          data: DividerThemeData(
+            color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300,
+            thickness: 1,
+          ),
+          child: Column(
+            children: [
+              UserAccountsDrawerHeader(
+                accountName: Text(
+                  fullName ?? "Guest User",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.f),
+                ),
+                accountEmail: Text(email ?? ""),
+                currentAccountPicture: CircleAvatar(
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  child: Text(
+                    _getInitials(fullName),
+                    style: TextStyle(fontSize: 24.0.f, color: AppColors.primary),
+                  ),
+                ),
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
                 ),
               ),
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.description),
+                      title: const Text('Summarize Text or File'),
+                      onTap: () {
+                        Navigation.pop_(context);
+                        Navigation.navigateTo(context, AppRoute.summarize);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.quiz),
+                      title: const Text('Create a Quiz'),
+                      onTap: () {
+                        Navigation.pop_(context);
+                        Navigation.navigateTo(context, AppRoute.quiz);
+                      },
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.article),
+                      title: const Text('Texts and Documents Summary'),
+                      onTap: () {
+                        Navigation.pop_(context);
+                        Navigation.navigateTo(context, AppRoute.textsSummary);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.list_alt),
+                      title: const Text('Summary Quizzes'),
+                      onTap: () {
+                        Navigation.pop_(context);
+                        Navigation.navigateTo(context, AppRoute.summaryQuizzes);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.check_circle_outline),
+                      title: const Text('Do the Quizzes'),
+                      onTap: () {
+                        Navigation.pop_(context);
+                        Navigation.navigateTo(context, AppRoute.doQuizzes);
+                      },
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.settings),
+                      title: const Text('Settings'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, AppRoute.settings)
+                            .then((_) {
+                          _loadUserData();
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.description),
-                    title: const Text('Summarize Text or File'),
-                    onTap: () {
-                      Navigation.pop_(context);
-                      Navigation.navigateTo(context, AppRoute.summarize);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.quiz),
-                    title: const Text('Create a Quiz'),
-                    onTap: () {
-                      Navigation.pop_(context);
-                      Navigation.navigateTo(context, AppRoute.quiz);
-                    },
-                  ),
-                  const Divider(),
-                  ListTile(
-                    leading: const Icon(Icons.article),
-                    title: const Text('Texts and Documents Summary'),
-                    onTap: () {
-                      Navigation.pop_(context);
-                      Navigation.navigateTo(context, AppRoute.textsSummary);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.list_alt),
-                    title: const Text('Summary Quizzes'),
-                    onTap: () {
-                      Navigation.pop_(context);
-                      Navigation.navigateTo(context, AppRoute.summaryQuizzes);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.check_circle_outline),
-                    title: const Text('Do the Quizzes'),
-                    onTap: () {
-                      Navigation.pop_(context);
-                      Navigation.navigateTo(context, AppRoute.doQuizzes);
-                    },
-                  ),
-                  const Divider(),
-                  ListTile(
-                    leading: const Icon(Icons.settings),
-                    title: const Text('Settings'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, AppRoute.settings).then((_) {
-                        _loadUserData();
-                      });
-                    },
-                  ),
-                ],
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title:
+                const Text('Logout', style: TextStyle(color: Colors.red)),
+                onTap: _logout,
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Logout', style: TextStyle(color: Colors.red)),
-              onTap: _logout,
-            ),
-            Padding(
-              padding: only(bottom: 16),
-              child: Text(
-                'Version 1.0.0',
-                style: TextStyle(color: Colors.grey[600], fontSize: 12.f),
+              Padding(
+                padding: only(bottom: 16),
+                child: Text(
+                  'Version 1.0.0',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12.f),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       body: Stack(
