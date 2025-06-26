@@ -261,6 +261,7 @@ class _SettingsViewState extends State<SettingsView> {
                 if (trailingWidget != null) trailingWidget,
                 if (trailingWidget == null && onTap != null)
                   Icon(Icons.arrow_forward_ios, size: 18, color: textColor),
+
               ],
             ),
           ),
