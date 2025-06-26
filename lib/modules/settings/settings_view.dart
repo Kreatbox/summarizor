@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Required for Clipboard functionality
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/constants/app_themes.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
@@ -22,7 +22,6 @@ class _SettingsViewState extends State<SettingsView> {
     _nameController.dispose();
     super.dispose();
   }
-
   void _showCustomDialog({
     required String title,
     required String content,
@@ -139,6 +138,21 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
+  // New function to copy the invitation message to the clipboard.
+  void _copyInvitation() {
+    const String invitationMessage =
+        'We invite you to join the "Summarizor app" to learn more easily.';
+    Clipboard.setData(const ClipboardData(text: invitationMessage)).then((_) {
+      if (mounted) {
+        _showCustomDialog(
+            title: 'Copied!',
+            content: 'The invitation message has been copied to your clipboard.',
+            iconData: Icons.check_circle_outline_rounded,
+            iconColor: Colors.green);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeNotifier>(
@@ -187,8 +201,8 @@ class _SettingsViewState extends State<SettingsView> {
                 context: context,
                 isDarkMode: isDarkMode,
                 icon: Icons.share,
-                title: "Share",
-                onTap: _shareApp,
+                title: "share",
+                onTap: _copyInvitation,
               ),
             ],
           ),
@@ -255,7 +269,6 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  void _shareApp() {
-    Share.share('Check out Summarizor app! [Your App Link Here]');
-  }
+
+
 }
