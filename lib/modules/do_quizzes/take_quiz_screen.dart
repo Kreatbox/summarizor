@@ -255,7 +255,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.r)),
                   ),
-                  child: const Text('Finish'),
+                  child: const Text('save result'),
                 ),
               ],
             )
