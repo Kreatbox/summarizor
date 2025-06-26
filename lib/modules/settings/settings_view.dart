@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Required for Clipboard functionality
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/constants/app_themes.dart';
@@ -44,6 +44,7 @@ class _SettingsViewState extends State<SettingsView> {
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
+
               ),
               child: const Text('OK', style: TextStyle(color: Colors.white)),
               onPressed: () {
@@ -138,7 +139,6 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  // New function to copy the invitation message to the clipboard.
   void _copyInvitation() {
     const String invitationMessage =
         'We invite you to join the "Summarizor app" to learn more easily.';
