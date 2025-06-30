@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/constants/app_themes.dart';
+import 'package:summarizor/core/providers/locale_provider.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:summarizor/core/services/responsive.dart';
+
+import '../../l10n/app_localizations.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -22,6 +25,7 @@ class _SettingsViewState extends State<SettingsView> {
     _nameController.dispose();
     super.dispose();
   }
+
   void _showCustomDialog({
     required String title,
     required String content,
@@ -31,6 +35,7 @@ class _SettingsViewState extends State<SettingsView> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        final l10n = AppLocalizations.of(context)!;
         return AlertDialog(
           shape:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
@@ -44,9 +49,8 @@ class _SettingsViewState extends State<SettingsView> {
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
-
               ),
-              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              child: Text(l10n.ok, style: const TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -58,6 +62,7 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   Future<void> _showEditNameDialog() async {
+    final l10n = AppLocalizations.of(context)!;
     final cacheManager = CacheManager();
     final user = await cacheManager.getUser();
     _nameController.text = user?.fullName ?? '';
@@ -69,17 +74,17 @@ class _SettingsViewState extends State<SettingsView> {
       barrierDismissible: true,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Edit Name'),
+          title: Text(l10n.editNameTitle),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                const Text('Please enter your new name.'),
+                Text(l10n.editNameContent),
                 SizedBox(height: 16.h),
                 TextField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Full Name',
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: l10n.fullName,
                   ),
                 ),
               ],
@@ -87,13 +92,13 @@ class _SettingsViewState extends State<SettingsView> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
             ),
             FilledButton(
-              child: const Text('Save'),
+              child: Text(l10n.save),
               onPressed: () async {
                 final newName = _nameController.text.trim();
                 if (newName.isEmpty || user == null) {
@@ -113,8 +118,8 @@ class _SettingsViewState extends State<SettingsView> {
 
                   if (mounted) {
                     _showCustomDialog(
-                      title: 'Success',
-                      content: 'Your name has been updated successfully.',
+                      title: l10n.success,
+                      content: l10n.nameUpdatedSuccess,
                       iconData: Icons.check_circle_outline_rounded,
                       iconColor: Colors.green,
                     );
@@ -122,8 +127,8 @@ class _SettingsViewState extends State<SettingsView> {
                 } catch (e) {
                   if (mounted) {
                     _showCustomDialog(
-                      title: 'Error',
-                      content: 'Failed to update name. Please try again.',
+                      title: l10n.error,
+                      content: l10n.nameUpdatedError,
                       iconData: Icons.error_outline_rounded,
                       iconColor: Colors.red,
                     );
@@ -140,21 +145,58 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   void _copyInvitation() {
-    const String invitationMessage =
-        'We invite you to join the "Summarizor app" to learn more easily.';
-    Clipboard.setData(const ClipboardData(text: invitationMessage)).then((_) {
+    final l10n = AppLocalizations.of(context)!;
+    final String invitationMessage = l10n.invitationMessage;
+    Clipboard.setData(ClipboardData(text: invitationMessage)).then((_) {
       if (mounted) {
         _showCustomDialog(
-            title: 'Copied!',
-            content: 'The invitation message has been copied to your clipboard.',
+            title: l10n.copied,
+            content: l10n.invitationCopied,
             iconData: Icons.check_circle_outline_rounded,
             iconColor: Colors.green);
       }
     });
   }
 
+  void _showLanguageDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+    showDialog(
+        context: context,
+        builder: (builder) {
+          return AlertDialog(
+            title: Text(l10n.selectLanguage),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  ListTile(
+                    title: Text(l10n.english),
+                    onTap: () {
+                      localeProvider.setLocale(const Locale('en'));
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Text(l10n.arabic),
+                    onTap: () {
+                      localeProvider.setLocale(const Locale('ar'));
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Consumer<ThemeNotifier>(
       builder: (context, theme, child) {
         final isDarkMode = theme.themeMode == ThemeMode.dark;
@@ -162,7 +204,7 @@ class _SettingsViewState extends State<SettingsView> {
         return Scaffold(
           backgroundColor: isDarkMode ? AppColors.charcoal : Colors.white,
           appBar: AppBar(
-            title: const Text("Settings"),
+            title: Text(l10n.settings),
             backgroundColor: AppColors.primary,
             iconTheme: const IconThemeData(
               color: Colors.white,
@@ -178,8 +220,15 @@ class _SettingsViewState extends State<SettingsView> {
               _buildSettingsTile(
                 context: context,
                 isDarkMode: isDarkMode,
+                icon: Icons.language,
+                title: l10n.language,
+                onTap: _showLanguageDialog,
+              ),
+              _buildSettingsTile(
+                context: context,
+                isDarkMode: isDarkMode,
                 icon: Icons.light_mode,
-                title: "Dark Mode",
+                title: l10n.darkMode,
                 trailingWidget: Switch(
                   value: isDarkMode,
                   onChanged: (value) {
@@ -194,14 +243,14 @@ class _SettingsViewState extends State<SettingsView> {
                 context: context,
                 isDarkMode: isDarkMode,
                 icon: Icons.edit,
-                title: "Edit Name",
+                title: l10n.editName,
                 onTap: _showEditNameDialog,
               ),
               _buildSettingsTile(
                 context: context,
                 isDarkMode: isDarkMode,
                 icon: Icons.share,
-                title: "share",
+                title: l10n.share,
                 onTap: _copyInvitation,
               ),
             ],
@@ -261,7 +310,6 @@ class _SettingsViewState extends State<SettingsView> {
                 if (trailingWidget != null) trailingWidget,
                 if (trailingWidget == null && onTap != null)
                   Icon(Icons.arrow_forward_ios, size: 18, color: textColor),
-
               ],
             ),
           ),
@@ -269,7 +317,4 @@ class _SettingsViewState extends State<SettingsView> {
       ),
     );
   }
-
-
-
 }

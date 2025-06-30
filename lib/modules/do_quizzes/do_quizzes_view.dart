@@ -5,6 +5,7 @@ import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/modules/do_quizzes/take_quiz_screen.dart';
 import 'package:summarizor/core/services/responsive.dart';
+import '../../l10n/app_localizations.dart';
 
 class DoQuizzesView extends StatefulWidget {
   const DoQuizzesView({super.key});
@@ -60,6 +61,7 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
         required String content,
         required IconData iconData,
         required Color iconColor}) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -77,7 +79,7 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
               ),
-              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              child: Text(l10n.ok, style: const TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -89,6 +91,7 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
   }
 
   void _showDeleteConfirmationDialog(String quizId) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -97,14 +100,13 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
           icon: Icon(Icons.warning_amber_rounded,
               color: Colors.red[700], size: 48),
-          title: const Text('Confirm Deletion', textAlign: TextAlign.center),
-          content: const Text(
-              'Are you sure you want to permanently delete this quiz?',
-              textAlign: TextAlign.center),
+          title: Text(l10n.confirmDeletion, textAlign: TextAlign.center),
+          content:
+          Text(l10n.confirmDeletionMessage, textAlign: TextAlign.center),
           actionsAlignment: MainAxisAlignment.spaceEvenly,
           actions: [
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
               onPressed: () => Navigator.of(context).pop(),
             ),
             ElevatedButton(
@@ -113,7 +115,8 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
               ),
-              child: const Text('Delete', style: TextStyle(color: Colors.white)),
+              child: Text(l10n.delete,
+                  style: const TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteQuiz(quizId);
@@ -126,13 +129,14 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
   }
 
   void _deleteQuiz(String id) {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _quizzes.removeWhere((quiz) => quiz['id'] == id);
     });
     _saveQuizzes();
     _showCustomDialog(
-        title: 'Deleted',
-        content: 'The quiz has been deleted successfully.',
+        title: l10n.deleted,
+        content: l10n.quizDeletedSuccess,
         iconData: Icons.check_circle_outline_rounded,
         iconColor: Colors.green);
   }
@@ -162,10 +166,11 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Available Quizzes",
-            style: TextStyle(color: Colors.white)),
+        title:
+        Text(l10n.availableQuizzes, style: const TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -174,7 +179,7 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
         child: Padding(
           padding: 24.0.p,
           child: Text(
-            'No quizzes available. Go to "Create Quiz" to make one!',
+            l10n.noQuizzesAvailable,
             style: TextStyle(fontSize: 18.f, color: Colors.blueGrey),
             textAlign: TextAlign.center,
           ),
@@ -211,10 +216,9 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                 ),
               ),
               title: Text(
-                'Quiz with ${questions.length} questions',
+                l10n.quizWithQuestions(questions.length),
                 style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary),
+                    fontWeight: FontWeight.bold, color: AppColors.primary),
               ),
               subtitle: isCompleted
                   ? RichText(
@@ -222,15 +226,15 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                   style: TextStyle(
                       color: Colors.grey.shade600, fontSize: 14),
                   children: <TextSpan>[
-                    const TextSpan(text: 'Result: '),
+                    TextSpan(text: '${l10n.result}: '),
                     TextSpan(
-                        text: '$correct correct',
+                        text: l10n.correctCount(correct),
                         style: TextStyle(
                             color: Colors.green[700],
                             fontWeight: FontWeight.w500)),
                     const TextSpan(text: ', '),
                     TextSpan(
-                        text: '$wrong wrong',
+                        text: l10n.wrongCount(wrong),
                         style: TextStyle(
                             color: Colors.red[700],
                             fontWeight: FontWeight.w500)),
@@ -238,7 +242,7 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                 ),
               )
                   : Text(
-                'Not yet taken. Tap to start.',
+                l10n.notYetTaken,
                 style: TextStyle(color: Colors.grey.shade600),
               ),
               trailing: Row(
@@ -250,14 +254,14 @@ class _DoQuizzesViewState extends State<DoQuizzesView> {
                       onPressed: () => _navigateToTakeQuiz(
                           quiz['quizData'] as Map<String, dynamic>,
                           quiz['id'] as String),
-                      tooltip: 'Retake Quiz',
+                      tooltip: l10n.retakeQuiz,
                     ),
                   IconButton(
                     icon: Icon(Icons.delete_forever,
                         color: Colors.red[700]),
-                    onPressed: () => _showDeleteConfirmationDialog(
-                        quiz['id'] as String),
-                    tooltip: 'Delete this quiz',
+                    onPressed: () =>
+                        _showDeleteConfirmationDialog(quiz['id'] as String),
+                    tooltip: l10n.deleteThisQuiz,
                   ),
                 ],
               ),

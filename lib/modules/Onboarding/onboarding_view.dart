@@ -6,6 +6,7 @@ import 'package:summarizor/core/services/responsive.dart';
 import 'package:summarizor/core/constants/app_images.dart';
 import 'package:summarizor/core/services/navigation.dart';
 import '../../core/constants/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class OnboardingView extends StatefulWidget {
   const OnboardingView({super.key});
@@ -14,36 +15,45 @@ class OnboardingView extends StatefulWidget {
 }
 
 class _OnboardingViewState extends State<OnboardingView> {
-  final controller  = OnboardingItems();
-  final pageContoller = PageController();
+  final pageController = PageController();
+  bool isLastPage = false;
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final onboardingData = OnboardingItems();
+    final items = onboardingData.getItems(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       bottomSheet: Container(
         width: double.infinity,
         color: Colors.white,
-        padding:  10.ph+ 30.pv,
+        padding: 10.ph + 30.pv,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             SmoothPageIndicator(
-              controller: pageContoller,
-              count: controller.items.length,
-              onDotClicked: (index)=> pageContoller.animateToPage(index,duration: const Duration(milliseconds: 600),
+              controller: pageController,
+              count: items.length,
+              onDotClicked: (index) => pageController.animateToPage(index,
+                  duration: const Duration(milliseconds: 600),
                   curve: Curves.easeIn),
-              effect: const WormEffect(
-                activeDotColor: AppColors.primary
-              ),
+              effect: const WormEffect(activeDotColor: AppColors.primary),
             ),
-            SizedBox(width: 150.w,),
+            SizedBox(width: 150.w),
             ElevatedButton(
               onPressed: () {
-                if (pageContoller.page == controller.items.length - 1) {
+                if (isLastPage) {
                   Navigation.navigateAndRemove(context, AppRoute.signUp);
                 } else {
-                  pageContoller.nextPage(
+                  pageController.nextPage(
                     duration: const Duration(milliseconds: 600),
                     curve: Curves.easeIn,
                   );
@@ -58,52 +68,69 @@ class _OnboardingViewState extends State<OnboardingView> {
                 elevation: 5,
               ),
               child: Text(
-                pageContoller.hasClients && (pageContoller.page?.toInt() == controller.items.length - 1)
-                    ? "Finish"
-                    : "Next",style: Theme.of(context).textTheme.bodySmall,
+                isLastPage ? l10n.finish : l10n.next,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             )
-
           ],
         ),
-      ) ,
-            body:
-            SafeArea(
-              child: PageView.builder(
-                itemCount: controller.items.length,
-                  controller: pageContoller,
-                  itemBuilder: (context,index){
-                  return Stack(
+      ),
+      body: SafeArea(
+        child: PageView.builder(
+            itemCount: items.length,
+            controller: pageController,
+            onPageChanged: (index) {
+              setState(() {
+                isLastPage = index == items.length - 1;
+              });
+            },
+            itemBuilder: (context, index) {
+              return Stack(
+                children: [
+                  Image.asset(Images.onboardingBackground,
+                      fit: BoxFit.cover, width: 412.w),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Image.asset(Images.onboardingBackground,fit: BoxFit.cover,width: 412.w,
-                       ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: only(top: 5.h,),
-                          child:  Text(controller.items[index].title1,
-                            style: Theme.of(context).textTheme.displayLarge,),
+                      Padding(
+                        padding: only(
+                          top: 5.h,
                         ),
-                        Text(controller.items[index].title2,
-                          style: Theme.of(context).textTheme.displayMedium,
-                          textAlign: TextAlign.center,),
-                        Padding(
-                          padding: only(top: 45.h,left: 20.w,right: 20.w),
-                          child: Image.asset(controller.items[index].image,width: 364.w,height: 279.h,),
+                        child: Text(
+                          items[index].title1,
+                          style: Theme.of(context).textTheme.displayLarge,
                         ),
-                        Padding(
-                          padding: only(top: 20.h,left: 15.w,right: 15.w),
-                          child:  Text(controller.items[index].description,
-                            style: Theme.of(context).textTheme.bodyLarge,
-                            textAlign: TextAlign.center,),
+                      ),
+                      Text(
+                        items[index].title2,
+                        style: Theme.of(context).textTheme.displayMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      Padding(
+                        padding:
+                        only(top: 45.h, left: 20.w, right: 20.w),
+                        child: Image.asset(
+                          items[index].image,
+                          width: 364.w,
+                          height: 279.h,
                         ),
-                      ],
-                    ),]
-                  );
-              }),
-            ),
+                      ),
+                      Padding(
+                        padding:
+                        only(top: 20.h, left: 15.w, right: 15.w),
+                        child: Text(
+                          items[index].description,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }),
+      ),
     );
   }
 }

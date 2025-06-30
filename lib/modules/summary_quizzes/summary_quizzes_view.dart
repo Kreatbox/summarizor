@@ -6,6 +6,7 @@ import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/modules/do_quizzes/take_quiz_screen.dart';
 import 'package:summarizor/core/services/responsive.dart';
+import '../../l10n/app_localizations.dart';
 
 class SummaryQuizzesView extends StatefulWidget {
   const SummaryQuizzesView({super.key});
@@ -67,6 +68,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
         required String content,
         required IconData iconData,
         required Color iconColor}) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -84,7 +86,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
               ),
-              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              child: Text(l10n.ok, style: const TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -96,6 +98,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
   }
 
   void _showDeleteConfirmationDialog(String quizId) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -104,14 +107,12 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
           icon: Icon(Icons.warning_amber_rounded,
               color: Colors.red[700], size: 48),
-          title: const Text('Confirm Deletion', textAlign: TextAlign.center),
-          content: const Text(
-              'Are you sure you want to permanently delete this quiz?',
-              textAlign: TextAlign.center),
+          title: Text(l10n.confirmDeletion, textAlign: TextAlign.center),
+          content: Text(l10n.confirmDeletionMessage, textAlign: TextAlign.center),
           actionsAlignment: MainAxisAlignment.spaceEvenly,
           actions: [
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
               onPressed: () => Navigator.of(context).pop(),
             ),
             ElevatedButton(
@@ -120,7 +121,8 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
               ),
-              child: const Text('Delete', style: TextStyle(color: Colors.white)),
+              child:
+              Text(l10n.delete, style: const TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteQuiz(quizId);
@@ -133,13 +135,14 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
   }
 
   void _deleteQuiz(String id) {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _quizzes.removeWhere((quiz) => quiz['id'] == id);
     });
     _saveQuizzes();
     _showCustomDialog(
-        title: 'Deleted',
-        content: 'The quiz has been deleted successfully.',
+        title: l10n.deleted,
+        content: l10n.quizDeletedSuccess,
         iconData: Icons.check_circle_outline_rounded,
         iconColor: Colors.green);
   }
@@ -153,10 +156,10 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title:
-        const Text("Saved Quizzes", style: TextStyle(color: Colors.white)),
+        title: Text(l10n.savedQuizzes, style: const TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -165,7 +168,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
         child: Padding(
           padding: 24.0.p,
           child: Text(
-            'No quizzes generated yet for this account.',
+            l10n.noQuizzesGenerated,
             style: TextStyle(fontSize: 18.f, color: Colors.blueGrey),
             textAlign: TextAlign.center,
           ),
@@ -195,7 +198,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                 ),
               ),
               title: Text(
-                'Quiz Summary (${questions.length} Questions)',
+                l10n.quizSummaryTitle(questions.length),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -203,8 +206,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
               ),
               children: [
                 Padding(
-                  padding:
-                  EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+                  padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children:
@@ -216,12 +218,12 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                       question['correctAnswer'] as String;
 
                       return Padding(
-                        padding: only(bottom: 16.0.h),
+                        padding: EdgeInsets.only(bottom: 16.0.h),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Q${qIndex + 1}: ${question['question']}',
+                              '${l10n.questionLabel(qIndex + 1)}: ${question['question']}',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16.f,
@@ -239,7 +241,7 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
 
                               return Padding(
                                 padding:
-                                only(left: 8.0.w, top: 4.0.h),
+                                EdgeInsets.only(left: 8.0.w, top: 4.0.h),
                                 child: Text(
                                   option,
                                   style: TextStyle(
@@ -261,13 +263,13 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                   ),
                 ),
                 Padding(
-                  padding: only(right: 8.0.w, bottom: 8.0.h),
+                  padding: EdgeInsets.only(right: 8.0.w, bottom: 8.0.h),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.edit_note,
-                            color: Colors.blue[700]),
+                        icon:
+                        Icon(Icons.edit_note, color: Colors.blue[700]),
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -275,14 +277,15 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                               builder: (context) => TakeQuizScreen(
                                 quizData: quiz['quizData']
                                 as Map<String, dynamic>,
-                                quizId: quiz['id'] as String, userId: '',
+                                quizId: quiz['id'] as String,
+                                userId: _userId!,
                               ),
                             ),
                           ).then((_) {
                             _loadQuizzes();
                           });
                         },
-                        tooltip: 'Take Quiz',
+                        tooltip: l10n.takeQuiz,
                       ),
                       IconButton(
                         icon: Icon(Icons.copy,
@@ -292,33 +295,32 @@ class _SummaryQuizzesViewState extends State<SummaryQuizzesView> {
                           for (var i = 0; i < questions.length; i++) {
                             final q =
                             questions[i] as Map<String, dynamic>;
-                            buffer
-                                .writeln('Q${i + 1}: ${q['question']}');
+                            buffer.writeln(
+                                '${l10n.questionLabel(i + 1)}: ${q['question']}');
                             final opts = q['options'] as List<dynamic>;
                             for (final option in opts) {
                               buffer.writeln('- $option');
                             }
                             buffer.writeln(
-                                'Correct Answer: ${q['correctAnswer']}');
+                                '${l10n.correctAnswerLabel}: ${q['correctAnswer']}');
                             buffer.writeln();
                           }
                           Clipboard.setData(
                               ClipboardData(text: buffer.toString()));
                           _showCustomDialog(
-                              title: 'Copied',
-                              content:
-                              'The quiz has been copied to your clipboard.',
+                              title: l10n.copied,
+                              content: l10n.quizCopiedSuccess,
                               iconData: Icons.copy_all_rounded,
                               iconColor: AppColors.primary);
                         },
-                        tooltip: 'Copy Quiz Summary',
+                        tooltip: l10n.copyQuizSummary,
                       ),
                       IconButton(
                         icon: Icon(Icons.delete_forever,
                             color: Colors.red[700]),
-                        onPressed: () => _showDeleteConfirmationDialog(
-                            quiz['id'] as String),
-                        tooltip: 'Delete this quiz',
+                        onPressed: () =>
+                            _showDeleteConfirmationDialog(quiz['id'] as String),
+                        tooltip: l10n.deleteThisQuiz,
                       ),
                     ],
                   ),

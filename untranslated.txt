@@ -1,0 +1,9 @@
+{
+  "ar": [
+    "questionLabel",
+    "correctAnswerLabel",
+    "quizCopiedSuccess",
+    "confirmDeletionMessage",
+    "geminiPromptTemplateEnglish"
+  ]
+}

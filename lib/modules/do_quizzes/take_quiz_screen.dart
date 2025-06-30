@@ -1,9 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/models/quiz_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import 'package:summarizor/core/services/responsive.dart';
+import '../../l10n/app_localizations.dart';
 
 class TakeQuizScreen extends StatefulWidget {
   final Map<String, dynamic> quizData;
@@ -47,6 +48,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
     required IconData iconData,
     required Color iconColor,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -64,7 +66,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
               ),
-              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              child: Text(l10n.ok, style: const TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -95,10 +97,11 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
   }
 
   void _submitQuiz() {
+    final l10n = AppLocalizations.of(context)!;
     if (_selectedAnswers.length != _questions.length) {
       _showCustomDialog(
-          title: 'Incomplete Quiz',
-          content: 'Please answer all questions before submitting.',
+          title: l10n.incompleteQuiz,
+          content: l10n.pleaseAnswerAllQuestions,
           iconData: Icons.warning_amber_rounded,
           iconColor: Colors.orange);
       return;
@@ -148,9 +151,10 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Take Quiz", style: TextStyle(color: Colors.white)),
+        title: Text(l10n.takeQuiz, style: const TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -173,7 +177,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Question ${index + 1}: ${question.question}',
+                          '${l10n.question(index + 1)}: ${question.question}',
                           style: TextStyle(
                               fontSize: 18.f, fontWeight: FontWeight.bold),
                         ),
@@ -222,21 +226,22 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                     child: Column(
                       children: [
                         Text(
-                          'Results: $_correctAnswers / ${_questions.length}',
+                          l10n.results(
+                              _correctAnswers, _questions.length),
                           style: TextStyle(
                               fontSize: 22.f,
                               fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 10.h),
                         Text(
-                          'Correct: $_correctAnswers',
+                          l10n.correctAnswers(_correctAnswers),
                           style: TextStyle(
                               fontSize: 18.f, color: Colors.green),
                         ),
                         Text(
-                          'Wrong: $_wrongAnswers',
-                          style:
-                          TextStyle(fontSize: 18.f, color: Colors.red),
+                          l10n.wrongAnswers(_wrongAnswers),
+                          style: TextStyle(
+                              fontSize: 18.f, color: Colors.red),
                         ),
                       ],
                     ),
@@ -255,7 +260,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.r)),
                   ),
-                  child: const Text('save result'),
+                  child: Text(l10n.saveResult),
                 ),
               ],
             )
@@ -268,7 +273,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
               ),
-              child: const Text('Submit Quiz'),
+              child: Text(l10n.submitQuiz),
             ),
           ),
         ],

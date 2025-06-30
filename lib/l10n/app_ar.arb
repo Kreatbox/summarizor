@@ -1,0 +1,229 @@
+{
+    "@@locale": "ar",
+    "settings": "الإعدادات",
+    "language": "اللغة",
+    "darkMode": "الوضع الداكن",
+    "editName": "تعديل الاسم",
+    "share": "مشاركة",
+    "ok": "موافق",
+    "editNameTitle": "تعديل الاسم",
+    "editNameContent": "الرجاء إدخال اسمك الجديد.",
+    "fullName": "الاسم الكامل",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "success": "نجاح",
+    "nameUpdatedSuccess": "تم تحديث اسمك بنجاح.",
+    "error": "خطأ",
+    "nameUpdatedError": "فشل تحديث الاسم. الرجاء المحاولة مرة أخرى.",
+    "copied": "تم النسخ!",
+    "invitationCopied": "تم نسخ رسالة الدعوة إلى الحافظة الخاصة بك.",
+    "invitationMessage": "ندعوكم للانضمام إلى تطبيق \"Summarizor\" للتعلم بسهولة أكبر.",
+    "selectLanguage": "اختر اللغة",
+    "english": "الإنجليزية",
+    "arabic": "العربية",
+    "availableQuizzes": "الاختبارات المتاحة",
+    "noQuizzesAvailable": "لا توجد اختبارات متاحة. اذهب إلى \"إنشاء اختبار\" لعمل واحد!",
+    "confirmDeletion": "تأكيد الحذف",
+    "areYouSureDeleteQuiz": "هل أنت متأكد أنك تريد حذف هذا الاختبار بشكل دائم؟",
+    "delete": "حذف",
+    "deleted": "تم الحذف",
+    "quizDeletedSuccess": "تم حذف الاختبار بنجاح.",
+    "quizWithQuestions": "اختبار بـ {count} سؤال",
+    "result": "النتيجة: ",
+    "correct": " صحيحة",
+    "wrong": " خاطئة",
+    "notYetTaken": "لم يتم إجراؤه بعد. انقر للبدء.",
+    "retakeQuiz": "إعادة الاختبار",
+    "deleteThisQuiz": "حذف هذا الاختبار",
+    "takeQuiz": "ابدأ الاختبار",
+    "incompleteQuiz": "اختبار غير مكتمل",
+    "pleaseAnswerAllQuestions": "الرجاء الإجابة على جميع الأسئلة قبل الإرسال.",
+    "question": "سؤال {index}",
+    "results": "النتائج: {correctCount} / {totalCount}",
+    "correctAnswers": "صحيحة: {count}",
+    "wrongAnswers": "خاطئة: {count}",
+    "saveResult": "حفظ النتيجة",
+    "submitQuiz": "إرسال الاختبار",
+    "summarizeTextOrFile": "لخص نصاً أو ملفاً",
+    "createAQuiz": "أنشئ اختباراً",
+    "savedTextAndDocumentSummaries": "ملخصات النصوص والمستندات المحفوظة",
+    "savedSummaryQuizzes": "ملخصات الاختبارات المحفوظة",
+    "doTheQuizzes": "قم بحل الاختبارات",
+    "logout": "تسجيل الخروج",
+    "version": "الإصدار 1.0.0",
+    "hello": "مرحباً،",
+    "guestUser": "مستخدم زائر",
+    "loginSuccess": "تم تسجيل الدخول بنجاح! جارٍ التوجيه...",
+    "loginFailed": "فشل تسجيل الدخول",
+    "anUnknownErrorOccurred": "حدث خطأ غير معروف.",
+    "invalidCredentials": "لا يوجد مستخدم لهذا البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    "wrongPassword": "كلمة المرور المقدمة لهذا المستخدم خاطئة.",
+    "invalidEmail": "البريد الإلكتروني المقدم غير صالح.",
+    "unexpectedError": "حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.",
+    "logIn": "تسجيل الدخول",
+    "dontHaveAnAccount": "ليس لديك حساب؟",
+    "signUp": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "pleaseEnterEmail": "الرجاء إدخال بريدك الإلكتروني",
+    "pleaseEnterValidEmail": "الرجاء إدخال بريد إلكتروني صالح",
+    "password": "كلمة المرور",
+    "pleaseEnterPassword": "الرجاء إدخال كلمة المرور الخاصة بك",
+    "finish": "إنهاء",
+    "next": "التالي",
+    "createQuizTitle": "إنشاء اختبار",
+    "quizGenerationPrompt": "الصق نصاً أو قم بتحميل ملف لإنشاء اختبار.",
+    "pasteTextHere": "الصق النص هنا...",
+    "or": "أو",
+    "clickToUploadFile": "انقر لتحميل ملف",
+    "uploaded": "تم التحميل: {fileName}",
+    "generateQuiz": "إنشاء اختبار",
+    "unsupportedPlatform": "منصة غير مدعومة",
+    "fileProcessingWebError": "معالجة الملفات غير مدعومة على الويب.",
+    "unsupportedFile": "ملف غير مدعوم",
+    "docNotSupported": "ملفات DOC غير مدعومة. يرجى تحويلها إلى تنسيق DOCX.",
+    "unsupportedFileType": "يرجى تحميل ملف PDF أو TXT أو DOCX.",
+    "inputRequired": "الإدخال مطلوب",
+    "pasteOrUploadFirst": "الرجاء لصق نص أو تحميل ملف أولاً.",
+    "quizGeneratedSuccess": "تم إنشاء الاختبار وحفظه بنجاح!",
+    "quizGenerationFailed": "فشل إنشاء الاختبار. ربما تجاوزت حدك اليومي.",
+    "networkError": "خطأ في الشبكة",
+    "checkInternet": "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
+    "limitReached": "تم الوصول إلى الحد الأقصى",
+    "geminiQuotaExceeded": "⚠️ لقد تجاوزت الحصة اليومية المجانية لواجهة برمجة تطبيقات Gemini.",
+    "quizGenerationError": "حدث خطأ غير متوقع أثناء إنشاء الاختبار.\n{error}",
+    "generatedQuiz": "الاختبار المُنشأ:",
+    "clearAndGenerateNew": "مسح وإنشاء جديد",
+    "unknownQuestionType": "نوع سؤال غير معروف.",
+    "savedQuizzes": "الاختبارات المحفوظة",
+    "noQuizzesGenerated": "لم يتم إنشاء اختبارات لهذا الحساب بعد.",
+    "quizSummaryTitle": "ملخص الاختبار ({count} أسئلة)",
+    "copyQuizSummary": "نسخ ملخص الاختبار",
+    "pleaseEnterFullName": "الرجاء إدخال اسمك الكامل",
+    "passwordMinNumber": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل",
+    "alreadyHaveAnAccount": "هل لديك حساب بالفعل؟",
+    "summarizeTitle": "تلخيص نص أو ملف",
+    "summarizePrompt": "الصق نصاً أدناه أو قم بتحميل ملف PDF/TXT/DOCX للحصول على ملخص.",
+    "summarizeHint": "يمكنك كتابة أو لصق أي نص تريد تلخيصه...",
+    "generateSummary": "إنشاء ملخص",
+    "summaryGeneratedSuccess": "تم إنشاء الملخص وحفظه بنجاح!",
+    "summaryGenerationError": "حدث خطأ غير متوقع أثناء التلخيص.",
+    "generatedSummary": "الملخص المُنشأ:",
+    "copySummary": "نسخ الملخص",
+    "areYouSureDeleteSummary": "هل أنت متأكد أنك تريد حذف هذا الملخص بشكل دائم؟",
+    "savedSummaries": "الملخصات المحفوظة",
+    "noSummariesSaved": "لا توجد ملخصات محفوظة لهذا الحساب بعد.",
+    "confirmDeleteSummaryMessage": "هل أنت متأكد من رغبتك في حذف هذا الملخص بشكل دائم؟",
+    "summaryDeletedSuccess": "تم حذف الملخص بنجاح.",
+    "summaryNumber": "ملخص #{number}",
+    "@summaryNumber": {
+        "placeholders": {
+            "number": {
+                "type": "int"
+            }
+        }
+    },
+    "summaryCopiedSuccess": "تم نسخ الملخص إلى الحافظة الخاصة بك.",
+    "deleteThisSummary": "حذف هذا الملخص",
+    "@quizSummaryTitle": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "format": "compact"
+            }
+        }
+    },
+    "questionLabel": "س{number}",
+    "@questionLabel": {
+        "placeholders": {
+            "number": {
+                "type": "int"
+            }
+        }
+    },
+    "correctAnswerLabel": "الإجابة الصحيحة",
+    "quizCopiedSuccess": "تم نسخ الاختبار إلى الحافظة.",
+    "confirmDeletionMessage": "هل أنت متأكد من رغبتك في حذف هذا الاختبار بشكل دائم؟",
+    "pasteOrUploadInstruction": "الصق النص أدناه أو قم بتحميل ملف PDF/TXT/DOCX للحصول على ملخص.",
+    "pasteTextHint": "يمكنك كتابة أو لصق أي نص تريد تلخيصه...",
+    "clickToUpload": "انقر لتحميل ملف",
+    "uploadedFileName": "تم الرفع: {fileName}",
+    "@uploadedFileName": {
+        "placeholders": {
+            "fileName": {
+                "type": "String"
+            }
+        }
+    },
+    "generatedSummaryTitle": "الملخص المُنشأ:",
+    "pasteTextOrUploadFile": "يرجى لصق نص أو تحميل ملف أولاً.",
+    "geminiApiLimit": "⚠️ ربما تكون قد تجاوزت حدك اليومي المجاني لاستخدام Gemini API.",
+    "checkInternetConnection": "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
+    "@unsupportedFileType": {
+        "placeholders": {
+            "extension": {
+                "type": "String"
+            }
+        }
+    },
+    "@uploaded": {
+        "placeholders": {
+            "fileName": {
+                "type": "String"
+            }
+        }
+    },
+    "noReadableTextInDocx": "لم يتم العثور على نص قابل للقراءة في ملف DOCX.",
+    "@quizGenerationError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "newQuiz": "اختبار جديد",
+    "onboarding1Title1": "أهلاً بك في",
+    "onboarding1Title2": "Summarizer",
+    "onboarding1Desc": "مرحبًا بك في تطبيق Summarizer! سواء كنت طالباً أو معلماً، فإن تطبيقنا يجعل إنشاء المحتوى التعليمي أمراً بسيطاً وسريعاً.",
+    "onboarding2Title1": "تعلم بذكاء",
+    "onboarding2Title2": "لا بجهد أكبر!",
+    "onboarding2Desc": "باستخدام تطبيقنا للتلخيص وتوليد الأسئلة، يمكنك تحويل ملفاتك النصية أو موادك الدراسية إلى ملخصات موجزة وأسئلة مخصصة دون عناء.",
+    "onboarding3Title1": "جرّب قوة",
+    "onboarding3Title2": "الذكاء الاصطناعي!",
+    "onboarding3Desc": "ابدأ الآن بتحميل موادك التعليمية. سنساعدك في تلخيصها في دقائق وإنشاء أسئلة بمستوى احترافي لمراجعة أو اختبار فعال.",
+    "@quizWithQuestions": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "correctCount": "{count} صحيحة",
+    "@correctCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "wrongCount": "{count} خاطئة",
+    "@wrongCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "geminiPromptTemplateEnglish": "Provide a detailed and comprehensive summary of the following text:",
+    "geminiPromptTemplateArabic": "قدّم ملخصاً تفصيلياً وشاملاً للنص التالي:",
+    "geminiQuizInstructionEnglish": "Write the quiz in English only.",
+    "geminiQuizInstructionArabic": "اكتب الاختبار باللغة العربية فقط، وتجنب استخدام كلمات أو عبارات بالإنجليزية.",
+    "geminiQuizPrompt": "{languageInstruction}\n\nبناءً على النص التالي، قم بإنشاء اختبار من {numOfQuestions} سؤال، يتضمن مزيجاً من أنواع الاختيار من متعدد والصواب والخطأ.\nيجب أن يكون الناتج كائن JSON صالح. لا تقم بتضمين أي نص أو markdown أو شرح قبل أو بعد كائن JSON.\nاستخدم بنية JSON الدقيقة التالية:\n{jsonStructure}\nالنص:\n{content}",
+    "@geminiQuizPrompt": {
+        "placeholders": {
+            "languageInstruction": {},
+            "numOfQuestions": {},
+            "jsonStructure": {},
+            "content": {}
+        }
+    }
+}

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:summarizor/core/providers/locale_provider.dart';
 import 'core/constants/app_routes.dart';
 import 'core/constants/app_themes.dart';
 import 'core/services/responsive.dart';
 import 'firebase_options.dart';
+import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,8 +18,11 @@ Future<void> main() async {
   );
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeNotifier(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeNotifier()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+      ],
       child: const MainApp(),
     ),
   );
@@ -27,8 +33,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeNotifier>(
-      builder: (context, theme, child) {
+    return Consumer2<ThemeNotifier, LocaleProvider>(
+      builder: (context, theme, localeProvider, child) {
         return MaterialApp(
           builder: (context, widget) {
             SizeConfig.init(context);
@@ -40,6 +46,14 @@ class MainApp extends StatelessWidget {
           darkTheme: AppThemes.darkTheme,
           initialRoute: AppRoute.splash,
           routes: AppRoute.routes,
+          locale: localeProvider.locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
         );
       },
     );

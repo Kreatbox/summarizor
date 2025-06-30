@@ -5,6 +5,7 @@ import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/core/services/responsive.dart';
 import 'package:summarizor/core/constants/app_images.dart';
 import '../../core/services/navigation.dart';
+import '../../l10n/app_localizations.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -60,6 +61,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -93,7 +95,7 @@ class _HomeViewState extends State<HomeView> {
             children: [
               UserAccountsDrawerHeader(
                 accountName: Text(
-                  fullName ?? "Guest User",
+                  fullName ?? l10n.guestUser,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.f),
                 ),
                 accountEmail: Text(email ?? ""),
@@ -114,7 +116,7 @@ class _HomeViewState extends State<HomeView> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.description),
-                      title: const Text('Summarize Text or File'),
+                      title: Text(l10n.summarizeTextOrFile),
                       onTap: () {
                         Navigation.pop_(context);
                         Navigation.navigateTo(context, AppRoute.summarize);
@@ -122,7 +124,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.quiz),
-                      title: const Text('Create a Quiz'),
+                      title: Text(l10n.createAQuiz),
                       onTap: () {
                         Navigation.pop_(context);
                         Navigation.navigateTo(context, AppRoute.quiz);
@@ -131,7 +133,7 @@ class _HomeViewState extends State<HomeView> {
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.article),
-                      title: const Text('Saved Text & Document Summaries'),
+                      title: Text(l10n.savedTextAndDocumentSummaries),
                       onTap: () {
                         Navigation.pop_(context);
                         Navigation.navigateTo(context, AppRoute.textsSummary);
@@ -139,7 +141,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.list_alt),
-                      title: const Text('Saved Summary Quizzes'),
+                      title: Text(l10n.savedSummaryQuizzes),
                       onTap: () {
                         Navigation.pop_(context);
                         Navigation.navigateTo(context, AppRoute.summaryQuizzes);
@@ -147,7 +149,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.check_circle_outline),
-                      title: const Text('Do the Quizzes'),
+                      title: Text(l10n.doTheQuizzes),
                       onTap: () {
                         Navigation.pop_(context);
                         Navigation.navigateTo(context, AppRoute.doQuizzes);
@@ -156,7 +158,7 @@ class _HomeViewState extends State<HomeView> {
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.settings),
-                      title: const Text('Settings'),
+                      title: Text(l10n.settings),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.pushNamed(context, AppRoute.settings)
@@ -171,13 +173,13 @@ class _HomeViewState extends State<HomeView> {
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red),
                 title:
-                const Text('Logout', style: TextStyle(color: Colors.red)),
+                Text(l10n.logout, style: const TextStyle(color: Colors.red)),
                 onTap: _logout,
               ),
               Padding(
-                padding: only(bottom: 16),
+                padding: EdgeInsets.only(bottom: 16.h),
                 child: Text(
-                  'Version 1.0.0',
+                  l10n.version,
                   style: TextStyle(color: Colors.grey[600], fontSize: 12.f),
                 ),
               ),
@@ -195,8 +197,9 @@ class _HomeViewState extends State<HomeView> {
             padding: EdgeInsets.symmetric(horizontal: 10.w),
             child: ListView(
               children: [
+                SizedBox(height: 100.h),
                 Text(
-                  'Hello,',
+                  l10n.hello,
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
                 Text(
@@ -226,7 +229,7 @@ class _HomeViewState extends State<HomeView> {
                         ),
                         SizedBox(height: 10.h),
                         Text(
-                          'Summarize Text or File',
+                          l10n.summarizeTextOrFile,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                       ],
@@ -254,7 +257,7 @@ class _HomeViewState extends State<HomeView> {
                         ),
                         SizedBox(height: 10.h),
                         Text(
-                          'Create A Quiz',
+                          l10n.createAQuiz,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                       ],

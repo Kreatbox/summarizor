@@ -12,6 +12,7 @@ import 'package:summarizor/core/services/gemini_service.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:summarizor/core/services/responsive.dart';
 import 'package:xml/xml.dart';
+import '../../l10n/app_localizations.dart';
 
 class QuizView extends StatefulWidget {
   const QuizView({super.key});
@@ -35,7 +36,7 @@ class _QuizViewState extends State<QuizView> {
 
   Future<void> _getCurrentUserId() async {
     final user = await CacheManager().getUser();
-    if (user != null) {
+    if (user != null && mounted) {
       setState(() {
         _userId = user.uid;
       });
@@ -48,11 +49,14 @@ class _QuizViewState extends State<QuizView> {
     required IconData iconData,
     required Color iconColor,
   }) {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
           icon: Icon(iconData, color: iconColor, size: 48),
           title: Text(title, textAlign: TextAlign.center),
           content: Text(content, textAlign: TextAlign.center),
@@ -61,9 +65,10 @@ class _QuizViewState extends State<QuizView> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
               ),
-              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              child: Text(l10n.ok, style: const TextStyle(color: Colors.white)),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],
@@ -88,6 +93,8 @@ class _QuizViewState extends State<QuizView> {
   }
 
   Future<String> extractTextFromDocx(String path) async {
+    if (!mounted) return "";
+    final l10n = AppLocalizations.of(context)!;
     final bytes = await File(path).readAsBytes();
     final archive = ZipDecoder().decodeBytes(bytes);
 
@@ -95,14 +102,18 @@ class _QuizViewState extends State<QuizView> {
       if (file.name == 'word/document.xml') {
         final content = utf8.decode(file.content as List<int>);
         final document = XmlDocument.parse(content);
-        return document.findAllElements('w:t').map((node) => node.text).join(' ');
+        return document
+            .findAllElements('w:t')
+            .map((node) => node.text)
+            .join(' ');
       }
     }
-    return 'No readable text found in DOCX file.';
+    return l10n.noReadableTextInDocx;
   }
 
   Future<void> generateQuiz() async {
-
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
 
     setState(() {
       isLoading = true;
@@ -112,12 +123,11 @@ class _QuizViewState extends State<QuizView> {
     try {
       String content = "";
 
-
       if (file != null) {
         if (kIsWeb || file!.path == null) {
           _showCustomDialog(
-            title: 'Unsupported Platform',
-            content: 'File processing is not supported on web.',
+            title: l10n.unsupportedPlatform,
+            content: l10n.fileProcessingWebError,
             iconData: Icons.error_outline_rounded,
             iconColor: Colors.red,
           );
@@ -139,8 +149,8 @@ class _QuizViewState extends State<QuizView> {
           content = await extractTextFromDocx(path);
         } else if (ext == 'doc') {
           _showCustomDialog(
-            title: 'Unsupported File',
-            content: 'DOC files are not supported. Please convert it to DOCX format.',
+            title: l10n.unsupportedFile,
+            content: l10n.docNotSupported,
             iconData: Icons.error_outline_rounded,
             iconColor: Colors.red,
           );
@@ -148,8 +158,8 @@ class _QuizViewState extends State<QuizView> {
           return;
         } else {
           _showCustomDialog(
-            title: 'Unsupported File',
-            content: 'Please upload a PDF, TXT, or DOCX file.',
+            title: l10n.unsupportedFile,
+            content: l10n.unsupportedFileType("pdf, txt, docx"),
             iconData: Icons.error_outline_rounded,
             iconColor: Colors.red,
           );
@@ -160,8 +170,8 @@ class _QuizViewState extends State<QuizView> {
         content = textController.text.trim();
       } else {
         _showCustomDialog(
-          title: 'Input Required',
-          content: 'Please paste text or upload a file first.',
+          title: l10n.inputRequired,
+          content: l10n.pasteOrUploadFirst,
           iconData: Icons.warning_amber_rounded,
           iconColor: Colors.orange,
         );
@@ -177,7 +187,6 @@ class _QuizViewState extends State<QuizView> {
           ? "اكتب الاختبار باللغة العربية فقط، وتجنب استخدام كلمات أو عبارات بالإنجليزية."
           : "Write the quiz in English only.";
 
-// ثم استخدمها في prompt:
       final prompt = '''
 $languageInstruction
 
@@ -204,68 +213,68 @@ Text:
 $content
 ''';
 
-
-
-
       final geminiService = GeminiService();
       final response = await geminiService.generateContent(prompt);
 
       if (response != null && response.isNotEmpty) {
-        final cleanedResponse = response.replaceAll("```json", "").replaceAll("```", "").trim();
+        final cleanedResponse =
+        response.replaceAll("```json", "").replaceAll("```", "").trim();
         final quizData = json.decode(cleanedResponse) as Map<String, dynamic>;
 
         await _saveQuiz(quizData);
 
         if (mounted) {
           _showCustomDialog(
-            title: 'Success',
-            content: 'Quiz generated and saved successfully!',
+            title: l10n.success,
+            content: l10n.quizGeneratedSuccess,
             iconData: Icons.check_circle_outline_rounded,
             iconColor: Colors.green,
           );
           setState(() => _generatedQuiz = quizData);
         }
       } else {
-        _showCustomDialog(
-          title: 'Failed',
-          content: 'Failed to generate quiz. Your daily limit may have been exceeded.',
-          iconData: Icons.error_outline_rounded,
-          iconColor: Colors.red,
-        );
+        if (mounted) {
+          _showCustomDialog(
+            title: l10n.error,
+            content: l10n.quizGenerationFailed,
+            iconData: Icons.error_outline_rounded,
+            iconColor: Colors.red,
+          );
+        }
       }
     } catch (e) {
       if (!mounted) return;
 
       if (e is SocketException) {
         _showCustomDialog(
-          title: 'Network Error',
-          content: 'Please check your internet connection and try again.',
+          title: l10n.networkError,
+          content: l10n.checkInternet,
           iconData: Icons.wifi_off_rounded,
           iconColor: Colors.orange,
         );
       } else if (e.toString().contains('quota_exceeded')) {
         _showCustomDialog(
-          title: 'Limit Reached',
-          content: '⚠️ You have exceeded the daily free quota for the Gemini API.',
+          title: l10n.limitReached,
+          content: l10n.geminiQuotaExceeded,
           iconData: Icons.warning_amber_rounded,
           iconColor: Colors.orange,
         );
       } else {
         _showCustomDialog(
-          title: 'Error',
-          content: "An unexpected error occurred while generating the quiz.\n$e",
+          title: l10n.error,
+          content: l10n.quizGenerationError(e.toString()),
           iconData: Icons.error_outline_rounded,
           iconColor: Colors.red,
         );
       }
-    }
-    finally {
+    } finally {
       if (mounted) setState(() => isLoading = false);
     }
   }
 
   Future<void> _saveQuiz(Map<String, dynamic> quizData) async {
-    if (_userId == null) return;
+    if (_userId == null || !mounted) return;
+    final l10n = AppLocalizations.of(context)!;
 
     final prefs = await SharedPreferences.getInstance();
     final String userQuizzesKey = 'generated_quizzes_list_$_userId';
@@ -276,8 +285,9 @@ $content
       currentQuizzes = json.decode(quizzesJson);
     }
 
-    String quizTitle = "New Quiz";
-    if (quizData.containsKey('questions') && (quizData['questions'] as List).isNotEmpty) {
+    String quizTitle = l10n.newQuiz;
+    if (quizData.containsKey('questions') &&
+        (quizData['questions'] as List).isNotEmpty) {
       quizTitle = quizData['questions'][0]['question'];
       if (quizTitle.length > 50) {
         quizTitle = "${quizTitle.substring(0, 50)}...";
@@ -303,7 +313,6 @@ $content
     });
   }
 
-  /// Detect if text contains Arabic characters (basic check)
   bool _isArabicLanguage(String text) {
     final arabicRegExp = RegExp(r'[\u0600-\u06FF]');
     return arabicRegExp.hasMatch(text);
@@ -311,10 +320,12 @@ $content
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title:
-        const Text("Create a Quiz", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text(l10n.createQuizTitle,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -324,7 +335,7 @@ $content
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Paste text or upload a file to generate a quiz.',
+              l10n.quizGenerationPrompt,
               style: TextStyle(fontSize: 16.f),
               textAlign: TextAlign.center,
             ),
@@ -336,7 +347,7 @@ $content
               }),
               maxLines: 7,
               decoration: InputDecoration(
-                labelText: 'Paste text here...',
+                labelText: l10n.pasteTextHere,
                 labelStyle: TextStyle(
                   color: Colors.grey[600],
                 ),
@@ -350,7 +361,7 @@ $content
             SizedBox(height: 16.h),
             Center(
               child: Text(
-                'OR',
+                l10n.or,
                 style: TextStyle(fontSize: 16.f, fontWeight: FontWeight.bold),
               ),
             ),
@@ -367,27 +378,29 @@ $content
                   height: 130.h,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.05),
+                    color: Colors.grey.withAlpha(13),
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: file == null
-                      ? const Column(
+                      ? Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.upload_file, size: 40, color: Colors.grey),
-                      SizedBox(height: 10.0),
-                      Text("Click to Upload File"),
+                      const Icon(Icons.upload_file,
+                          size: 40, color: Colors.grey),
+                      const SizedBox(height: 10.0),
+                      Text(l10n.clickToUploadFile),
                     ],
                   )
                       : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.check_circle, size: 40, color: Colors.green),
+                      const Icon(Icons.check_circle,
+                          size: 40, color: Colors.green),
                       SizedBox(height: 10.h),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8.w),
                         child: Text(
-                          "Uploaded: ${file!.name}",
+                          l10n.uploaded(file!.name),
                           textAlign: TextAlign.center,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -401,11 +414,13 @@ $content
             ElevatedButton.icon(
               onPressed: isLoading ? null : generateQuiz,
               icon: const Icon(Icons.quiz, color: Colors.white),
-              label: const Text("Generate Quiz", style: TextStyle(color: Colors.white)),
+              label: Text(l10n.generateQuiz,
+                  style: const TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
               ),
             ),
             if (isLoading)
@@ -421,9 +436,11 @@ $content
   }
 
   Widget _buildQuizDisplaySection() {
+    final l10n = AppLocalizations.of(context)!;
     final List questions = _generatedQuiz!['questions'] ?? [];
 
-    final bool isArabic = questions.isNotEmpty && _isArabicLanguage(questions[0]['question'] ?? '');
+    final bool isArabic = questions.isNotEmpty &&
+        _isArabicLanguage(questions[0]['question'] ?? '');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,10 +449,12 @@ $content
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Generated Quiz:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+            Text(l10n.generatedQuiz,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 20)),
             IconButton(
               icon: const Icon(Icons.refresh_rounded, color: Colors.blue),
-              tooltip: "Clear and Generate New",
+              tooltip: l10n.clearAndGenerateNew,
               onPressed: _resetView,
             ),
           ],
@@ -455,7 +474,8 @@ $content
 
               return Card(
                 margin: EdgeInsets.symmetric(vertical: 8.h),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
                 elevation: 2,
                 child: Padding(
                   padding: EdgeInsets.all(12.r),
@@ -464,20 +484,24 @@ $content
                     children: [
                       Text(
                         "${index + 1}. $questionText",
-                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.f),
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 16.f),
                       ),
                       SizedBox(height: 8.h),
                       if (type == "multipleChoice")
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: options.map((option) {
-                            final bool isCorrect = option.startsWith(correctAnswer);
+                            final bool isCorrect =
+                            option.startsWith(correctAnswer);
                             return Padding(
                               padding: EdgeInsets.symmetric(vertical: 2.h),
                               child: Row(
                                 children: [
                                   Icon(
-                                    isCorrect ? Icons.check_circle : Icons.circle_outlined,
+                                    isCorrect
+                                        ? Icons.check_circle
+                                        : Icons.circle_outlined,
                                     color: isCorrect ? Colors.green : Colors.grey,
                                     size: 20,
                                   ),
@@ -486,8 +510,12 @@ $content
                                     child: Text(
                                       option,
                                       style: TextStyle(
-                                        fontWeight: isCorrect ? FontWeight.bold : FontWeight.normal,
-                                        color: isCorrect ? Colors.green : Colors.black87,
+                                        fontWeight: isCorrect
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                        color: isCorrect
+                                            ? Colors.green
+                                            : Colors.black87,
                                       ),
                                     ),
                                   ),
@@ -500,13 +528,16 @@ $content
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: options.map((option) {
-                            final bool isCorrect = option.toLowerCase() == correctAnswer.toLowerCase();
+                            final bool isCorrect = option.toLowerCase() ==
+                                correctAnswer.toLowerCase();
                             return Padding(
                               padding: EdgeInsets.symmetric(vertical: 2.h),
                               child: Row(
                                 children: [
                                   Icon(
-                                    isCorrect ? Icons.check_circle : Icons.circle_outlined,
+                                    isCorrect
+                                        ? Icons.check_circle
+                                        : Icons.circle_outlined,
                                     color: isCorrect ? Colors.green : Colors.grey,
                                     size: 20,
                                   ),
@@ -514,8 +545,12 @@ $content
                                   Text(
                                     option,
                                     style: TextStyle(
-                                      fontWeight: isCorrect ? FontWeight.bold : FontWeight.normal,
-                                      color: isCorrect ? Colors.green : Colors.black87,
+                                      fontWeight: isCorrect
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: isCorrect
+                                          ? Colors.green
+                                          : Colors.black87,
                                     ),
                                   ),
                                 ],
@@ -524,7 +559,7 @@ $content
                           }).toList(),
                         )
                       else
-                        Text("Unknown question type."),
+                        Text(l10n.unknownQuestionType),
                     ],
                   ),
                 ),

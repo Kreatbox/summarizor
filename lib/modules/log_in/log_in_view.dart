@@ -4,6 +4,7 @@ import '../../core/constants/app_images.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/responsive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../l10n/app_localizations.dart';
 
 class LogInView extends StatefulWidget {
   const LogInView({super.key});
@@ -32,11 +33,14 @@ class _LogInViewState extends State<LogInView> {
     required IconData iconData,
     required Color iconColor,
   }) {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
           icon: Icon(iconData, color: iconColor, size: 48),
           title: Text(title, textAlign: TextAlign.center),
           content: Text(content, textAlign: TextAlign.center),
@@ -45,9 +49,10 @@ class _LogInViewState extends State<LogInView> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r)),
               ),
-              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              child: Text(l10n.ok, style: const TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -77,12 +82,15 @@ class _LogInViewState extends State<LogInView> {
           Navigator.pushReplacementNamed(context, '/home');
         }
       } catch (e) {
-        _showCustomDialog(
-          title: 'Login Failed',
-          content: e.toString(),
-          iconData: Icons.error_outline_rounded,
-          iconColor: Colors.red,
-        );
+        if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
+          _showCustomDialog(
+            title: l10n.loginFailed,
+            content: e.toString(),
+            iconData: Icons.error_outline_rounded,
+            iconColor: Colors.red,
+          );
+        }
       } finally {
         if (mounted) {
           setState(() {
@@ -95,6 +103,7 @@ class _LogInViewState extends State<LogInView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -106,62 +115,64 @@ class _LogInViewState extends State<LogInView> {
             ),
             Padding(
               padding: 20.ph + 30.pv,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Image.asset(
-                    Images.appIcon,
-                    width: 93.w,
-                    height: 102.h,
-                  ),
-                  SizedBox(height: 60.h),
-                  Form(
-                    key: _formKey,
-                    child: Column(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Image.asset(
+                      Images.appIcon,
+                      width: 93.w,
+                      height: 102.h,
+                    ),
+                    SizedBox(height: 60.h),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          _buildEmailField(_emailController, l10n),
+                          SizedBox(height: 16.h),
+                          _buildPasswordField(_passwordController, l10n),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 40.h),
+                    _isLoading
+                        ? const CircularProgressIndicator(color: AppColors.primary)
+                        : SizedBox(
+                      width: double.infinity,
+                      height: 50.h,
+                      child: ElevatedButton(
+                        onPressed: _handleLogin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          l10n.logIn,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildEmailField(_emailController),
-                        SizedBox(height: 16.h),
-                        _buildPasswordField(_passwordController),
+                        Text(l10n.dontHaveAnAccount),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, "/signup");
+                          },
+                          child: Text(
+                            l10n.signUp,
+                            style: Theme.of(context).textTheme.displaySmall,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  SizedBox(height: 40.h),
-                  _isLoading
-                      ? CircularProgressIndicator(color: AppColors.primary)
-                      : SizedBox(
-                    width: double.infinity,
-                    height: 50.h,
-                    child: ElevatedButton(
-                      onPressed: _handleLogin,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        "Log In",
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account?"),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "/signup");
-                        },
-                        child: Text(
-                          "Sign Up",
-                          style: Theme.of(context).textTheme.displaySmall,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -170,14 +181,16 @@ class _LogInViewState extends State<LogInView> {
     );
   }
 
-  Widget _buildEmailField(TextEditingController controller) {
+  Widget _buildEmailField(
+      TextEditingController controller, AppLocalizations l10n) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         errorStyle: const TextStyle(color: Colors.red),
-        labelText: "Email",
+        labelText: l10n.email,
         labelStyle: Theme.of(context).textTheme.labelLarge,
-        errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+        errorBorder:
+        const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
         filled: true,
         fillColor: const Color(0x1A6BB5B8),
         border: OutlineInputBorder(
@@ -187,23 +200,24 @@ class _LogInViewState extends State<LogInView> {
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter your Email';
+          return l10n.pleaseEnterEmail;
         }
         if (!value.contains('@') || !value.contains('.com')) {
-          return 'Please enter a valid Email';
+          return l10n.pleaseEnterValidEmail;
         }
         return null;
       },
     );
   }
 
-  Widget _buildPasswordField(TextEditingController controller) {
+  Widget _buildPasswordField(
+      TextEditingController controller, AppLocalizations l10n) {
     return TextFormField(
       controller: controller,
       obscureText: _obscureText,
       decoration: InputDecoration(
         errorStyle: const TextStyle(color: Colors.red),
-        labelText: "Password",
+        labelText: l10n.password,
         labelStyle: Theme.of(context).textTheme.labelLarge,
         filled: true,
         fillColor: const Color(0x1A6BB5B8),
@@ -225,7 +239,7 @@ class _LogInViewState extends State<LogInView> {
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter your password';
+          return l10n.pleaseEnterPassword;
         }
         return null;
       },

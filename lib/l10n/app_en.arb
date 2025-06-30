@@ -1,0 +1,233 @@
+{
+    "@@locale": "en",
+    "settings": "Settings",
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "editName": "Edit Name",
+    "share": "Share",
+    "ok": "OK",
+    "editNameTitle": "Edit Name",
+    "editNameContent": "Please enter your new name.",
+    "fullName": "Full Name",
+    "cancel": "Cancel",
+    "save": "Save",
+    "success": "Success",
+    "nameUpdatedSuccess": "Your name has been updated successfully.",
+    "error": "Error",
+    "nameUpdatedError": "Failed to update name. Please try again.",
+    "copied": "Copied!",
+    "invitationCopied": "The invitation message has been copied to your clipboard.",
+    "invitationMessage": "We invite you to join the \"Summarizor app\" to learn more easily.",
+    "selectLanguage": "Select Language",
+    "english": "English",
+    "arabic": "Arabic",
+    "availableQuizzes": "Available Quizzes",
+    "noQuizzesAvailable": "No quizzes available. Go to \"Create Quiz\" to make one!",
+    "confirmDeletion": "Confirm Deletion",
+    "areYouSureDeleteQuiz": "Are you sure you want to permanently delete this quiz?",
+    "delete": "Delete",
+    "deleted": "Deleted",
+    "quizDeletedSuccess": "The quiz has been deleted successfully.",
+    "quizWithQuestions": "Quiz with {count} questions",
+    "result": "Result: ",
+    "correct": " correct",
+    "wrong": " wrong",
+    "notYetTaken": "Not yet taken. Tap to start.",
+    "retakeQuiz": "Retake Quiz",
+    "deleteThisQuiz": "Delete this quiz",
+    "takeQuiz": "Take Quiz",
+    "incompleteQuiz": "Incomplete Quiz",
+    "pleaseAnswerAllQuestions": "Please answer all questions before submitting.",
+    "question": "Question {index}",
+    "results": "Results: {correctCount} / {totalCount}",
+    "correctAnswers": "Correct: {count}",
+    "wrongAnswers": "Wrong: {count}",
+    "saveResult": "Save Result",
+    "submitQuiz": "Submit Quiz",
+    "summarizeTextOrFile": "Summarize Text or File",
+    "createAQuiz": "Create a Quiz",
+    "savedTextAndDocumentSummaries": "Saved Text & Document Summaries",
+    "savedSummaryQuizzes": "Saved Summary Quizzes",
+    "doTheQuizzes": "Do the Quizzes",
+    "logout": "Logout",
+    "version": "Version 1.0.0",
+    "hello": "Hello,",
+    "guestUser": "Guest User",
+    "loginSuccess": "Login successful! Redirecting...",
+    "loginFailed": "Login Failed",
+    "anUnknownErrorOccurred": "An unknown error occurred.",
+    "invalidCredentials": "No user found for that email or password is incorrect.",
+    "wrongPassword": "Wrong password provided for that user.",
+    "invalidEmail": "The email provided is invalid.",
+    "unexpectedError": "An unexpected error occurred. Please try again.",
+    "logIn": "Log In",
+    "dontHaveAnAccount": "Don't have an account?",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "pleaseEnterEmail": "Please enter your Email",
+    "pleaseEnterValidEmail": "Please enter a valid Email",
+    "password": "Password",
+    "pleaseEnterPassword": "Please enter your password",
+    "finish": "Finish",
+    "next": "Next",
+    "createQuizTitle": "Create a Quiz",
+    "quizGenerationPrompt": "Paste text below or upload a PDF/TXT/DOCX file to generate a quiz.",
+    "pasteTextHere": "Paste text here...",
+    "or": "OR",
+    "clickToUploadFile": "Click to Upload File",
+    "uploaded": "Uploaded: {fileName}",
+    "generateQuiz": "Generate Quiz",
+    "unsupportedPlatform": "Unsupported Platform",
+    "fileProcessingWebError": "File processing is not supported on web.",
+    "unsupportedFile": "Unsupported File",
+    "docNotSupported": "DOC files are not supported. Please convert it to DOCX format.",
+    "unsupportedFileType": "Please upload a PDF, TXT, or DOCX file.",
+    "inputRequired": "Input Required",
+    "pasteOrUploadFirst": "Please paste text or upload a file first.",
+    "quizGeneratedSuccess": "Quiz generated and saved successfully!",
+    "quizGenerationFailed": "Failed to generate quiz. Your daily limit may have been exceeded.",
+    "networkError": "Network Error",
+    "checkInternet": "Please check your internet connection and try again.",
+    "limitReached": "Limit Reached",
+    "geminiQuotaExceeded": "⚠️ You have exceeded the daily free quota for the Gemini API.",
+    "quizGenerationError": "An unexpected error occurred while generating the quiz.\n{error}",
+    "generatedQuiz": "Generated Quiz:",
+    "clearAndGenerateNew": "Clear and Generate New",
+    "unknownQuestionType": "Unknown question type.",
+    "savedQuizzes": "Saved Quizzes",
+    "noQuizzesGenerated": "No quizzes generated yet for this account.",
+    "quizSummaryTitle": "Quiz Summary ({count} Questions)",
+    "copyQuizSummary": "Copy Quiz Summary",
+    "pleaseEnterFullName": "Please enter your Fullname",
+    "passwordMinNumber": "Password must contain at least one number",
+    "alreadyHaveAnAccount": "Already have an account?",
+    "summarizeTitle": "Summarize Text or File",
+    "summarizePrompt": "Paste text below or upload a PDF/TXT/DOCX file to get a summary.",
+    "summarizeHint": "You can type or paste any text you want to summarize...",
+    "generateSummary": "Generate Summary",
+    "summaryGeneratedSuccess": "Summary generated and saved successfully!",
+    "summaryGenerationError": "An unexpected error occurred while summarizing.",
+    "generatedSummary": "Generated Summary:",
+    "copySummary": "Copy Summary",
+    "areYouSureDeleteSummary": "Are you sure you want to permanently delete this summary?",
+    "savedSummaries": "Saved Summaries",
+    "noSummariesSaved": "There are no summaries saved for this account yet.",
+    "confirmDeleteSummaryMessage": "Are you sure you want to permanently delete this summary?",
+    "summaryDeletedSuccess": "The summary has been deleted successfully.",
+    "summaryNumber": "Summary #{number}",
+    "@summaryNumber": {
+        "placeholders": {
+            "number": {
+                "type": "int"
+            }
+        }
+    },
+    "summaryCopiedSuccess": "The summary has been copied to your clipboard.",
+    "deleteThisSummary": "Delete this summary",
+
+    "@quizSummaryTitle": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "format": "compact"
+            }
+        }
+    },
+    "questionLabel": "Q{number}",
+    "@questionLabel": {
+        "placeholders": {
+            "number": {
+                "type": "int"
+            }
+        }
+    },
+    "correctAnswerLabel": "Correct Answer",
+    "quizCopiedSuccess": "The quiz has been copied to your clipboard.",
+    "confirmDeletionMessage": "Are you sure you want to permanently delete this quiz?",
+    "pasteOrUploadInstruction": "Paste text below or upload a PDF/TXT/DOCX file to get a summary.",
+    "pasteTextHint": "You can type or paste any text you want to summarize...",
+    "clickToUpload": "Click to upload a file",
+    "uploadedFileName": "Uploaded: {fileName}",
+    "@uploadedFileName": {
+        "placeholders": {
+            "fileName": {
+                "type": "String"
+            }
+        }
+    },
+    "generatedSummaryTitle": "Generated Summary:",
+    "pasteTextOrUploadFile": "Please paste text or upload a file first.",
+    "geminiApiLimit": "⚠️ You may have exceeded your free daily limit for Gemini API usage.",
+    "checkInternetConnection": "Please check your internet connection and try again.",
+    "@unsupportedFileType": {
+        "placeholders": {
+            "extension": {
+                "type": "String"
+            }
+        }
+    },
+    "@uploaded": {
+        "placeholders": {
+            "fileName": {
+                "type": "String"
+            }
+        }
+    },
+    "noReadableTextInDocx": "No readable text found in DOCX file.",
+    "@quizGenerationError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "newQuiz": "New Quiz",
+    "onboarding1Title1": "Welcome to",
+    "onboarding1Title2": "Summarizer",
+    "onboarding1Desc": "Welcome to Summarizer app! Whether you're a student, teacher, our app makes creating educational content simple and fast.",
+    "onboarding2Title1": "Learn smarter",
+    "onboarding2Title2": "Not harder!",
+    "onboarding2Desc": "With our summarization and question generation app, you can turn your text files or study materials into concise summaries and tailored questions effortlessly.",
+    "onboarding3Title1": "Experience",
+    "onboarding3Title2": "AI powered!",
+    "onboarding3Desc": "Start now by uploading your educational materials. We'll help you summarize them in minutes and create professional-level questions for effective review or testing.",
+    "@quizWithQuestions": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "correctCount": "{count} correct",
+    "@correctCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "wrongCount": "{count} wrong",
+    "@wrongCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "geminiPromptTemplateEnglish": "Provide a detailed and comprehensive summary of the following text:",
+    "geminiPromptTemplateArabic": "قدّم ملخصًا تفصيليًا وشاملًا للنص التالي:",
+    "geminiQuizInstructionEnglish": "Write the quiz in English only.",
+    "geminiQuizPrompt": "{languageInstruction}\n\nBased on the following text, generate a quiz with {numOfQuestions} questions, including a mix of multiple-choice and true/false types.\nThe output MUST be a valid JSON object. Do not include any text, markdown, or explanation before or after the JSON object.\nUse the following exact JSON structure:\n{jsonStructure}\nText:\n{content}",
+    "@geminiQuizPrompt": {
+        "placeholders": {
+            "languageInstruction": {},
+            "numOfQuestions": {},
+            "jsonStructure": {},
+            "content": {}
+        }
+    }
+}
+
+
+

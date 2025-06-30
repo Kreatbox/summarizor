@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summarizor/core/constants/app_colors.dart';
 import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/core/services/responsive.dart';
+import '../../l10n/app_localizations.dart';
 
 class TextsAndDocumentsSummaryView extends StatefulWidget {
   const TextsAndDocumentsSummaryView({super.key});
@@ -76,6 +77,7 @@ class _TextsAndDocumentsSummaryViewState
         required String content,
         required IconData iconData,
         required Color iconColor}) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -93,7 +95,7 @@ class _TextsAndDocumentsSummaryViewState
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
               ),
-              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              child: Text(l10n.ok, style: const TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -105,6 +107,7 @@ class _TextsAndDocumentsSummaryViewState
   }
 
   void _showDeleteConfirmationDialog(String summaryId) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -113,14 +116,13 @@ class _TextsAndDocumentsSummaryViewState
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
           icon: Icon(Icons.warning_amber_rounded,
               color: Colors.red[700], size: 48),
-          title: const Text('Confirm Deletion', textAlign: TextAlign.center),
-          content: const Text(
-              'Are you sure you want to permanently delete this summary?',
-              textAlign: TextAlign.center),
+          title: Text(l10n.confirmDeletion, textAlign: TextAlign.center),
+          content:
+          Text(l10n.confirmDeleteSummaryMessage, textAlign: TextAlign.center),
           actionsAlignment: MainAxisAlignment.spaceEvenly,
           actions: [
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
               onPressed: () => Navigator.of(context).pop(),
             ),
             ElevatedButton(
@@ -129,7 +131,8 @@ class _TextsAndDocumentsSummaryViewState
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r)),
               ),
-              child: const Text('Delete', style: TextStyle(color: Colors.white)),
+              child:
+              Text(l10n.delete, style: const TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteSummary(summaryId);
@@ -142,23 +145,25 @@ class _TextsAndDocumentsSummaryViewState
   }
 
   void _deleteSummary(String id) {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _summaries.removeWhere((summary) => summary['id'] == id);
     });
     _saveSummaries();
     _showCustomDialog(
-        title: 'Deleted',
-        content: 'The summary has been deleted successfully.',
+        title: l10n.deleted,
+        content: l10n.summaryDeletedSuccess,
         iconData: Icons.check_circle_outline_rounded,
         iconColor: Colors.green);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title:
-        const Text("Saved Summaries", style: TextStyle(color: Colors.white)),
+        title: Text(l10n.savedSummaries,
+            style: const TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(
           color: Colors.white,
@@ -171,8 +176,9 @@ class _TextsAndDocumentsSummaryViewState
         child: Padding(
           padding: 24.0.p,
           child: Text(
-            'There are no summaries saved for this account yet.',
-            style: TextStyle(fontSize: 18.f, color: Colors.blueGrey),
+            l10n.noSummariesSaved,
+            style:
+            TextStyle(fontSize: 18.f, color: Colors.blueGrey),
             textAlign: TextAlign.center,
           ),
         ),
@@ -182,6 +188,7 @@ class _TextsAndDocumentsSummaryViewState
         itemCount: _summaries.length,
         itemBuilder: (context, index) {
           final summary = _summaries[index];
+          final summaryNumber = _summaries.length - index;
           return Card(
             margin: 8.0.pv,
             elevation: 4,
@@ -192,14 +199,14 @@ class _TextsAndDocumentsSummaryViewState
               leading: CircleAvatar(
                 backgroundColor: AppColors.primary.withOpacity(0.8),
                 child: Text(
-                  '${_summaries.length - index}',
+                  '$summaryNumber',
                   style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold),
                 ),
               ),
               title: Text(
-                'Summary #${_summaries.length - index}',
+                l10n.summaryNumber(summaryNumber),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -209,14 +216,16 @@ class _TextsAndDocumentsSummaryViewState
               EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
               children: [
                 Padding(
-                  padding: only(bottom: 8.0.h),
+                  padding: EdgeInsets.only(bottom: 8.0.h),
                   child: Text(
                     summary['content']!,
                     style: TextStyle(
                         fontSize: 16.f,
                         height: 1.5,
-                        color: Theme.of(context).textTheme.bodyMedium?.color
-                    ),
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.color),
                   ),
                 ),
                 Align(
@@ -231,21 +240,19 @@ class _TextsAndDocumentsSummaryViewState
                           Clipboard.setData(
                               ClipboardData(text: summary['content']!));
                           _showCustomDialog(
-                              title: 'Copied',
-                              content:
-                              'The summary has been copied to your clipboard.',
+                              title: l10n.copied,
+                              content: l10n.summaryCopiedSuccess,
                               iconData: Icons.copy_all_rounded,
                               iconColor: AppColors.primary);
                         },
-                        tooltip: 'Copy Summary',
+                        tooltip: l10n.copySummary,
                       ),
                       IconButton(
                         icon: Icon(Icons.delete_outline,
                             color: Colors.red[600]),
-                        onPressed: () =>
-                            _showDeleteConfirmationDialog(
-                                summary['id']!),
-                        tooltip: 'Delete this summary',
+                        onPressed: () => _showDeleteConfirmationDialog(
+                            summary['id']!),
+                        tooltip: l10n.deleteThisSummary,
                       ),
                     ],
                   ),
