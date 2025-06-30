@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:archive/archive_io.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -10,6 +11,7 @@ import 'package:summarizor/core/services/cache_manager.dart';
 import 'package:summarizor/core/services/gemini_service.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:summarizor/core/services/responsive.dart';
+import 'package:xml/xml.dart';
 
 class QuizView extends StatefulWidget {
   const QuizView({super.key});
@@ -50,8 +52,7 @@ class _QuizViewState extends State<QuizView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
           icon: Icon(iconData, color: iconColor, size: 48),
           title: Text(title, textAlign: TextAlign.center),
           content: Text(content, textAlign: TextAlign.center),
@@ -60,13 +61,10 @@ class _QuizViewState extends State<QuizView> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
               ),
               child: const Text('OK', style: TextStyle(color: Colors.white)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ],
         );
@@ -76,7 +74,7 @@ class _QuizViewState extends State<QuizView> {
 
   void pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowedExtensions: ['pdf', 'txt'],
+      allowedExtensions: ['pdf', 'txt', 'docx', 'doc'],
       type: FileType.custom,
     );
 
@@ -89,39 +87,23 @@ class _QuizViewState extends State<QuizView> {
     }
   }
 
-  Future<void> _saveQuiz(Map<String, dynamic> quizData) async {
-    if (_userId == null) return;
+  Future<String> extractTextFromDocx(String path) async {
+    final bytes = await File(path).readAsBytes();
+    final archive = ZipDecoder().decodeBytes(bytes);
 
-    final prefs = await SharedPreferences.getInstance();
-    final String userQuizzesKey = 'generated_quizzes_list_$_userId';
-    List<dynamic> currentQuizzes = [];
-    final String? quizzesJson = prefs.getString(userQuizzesKey);
-
-    if (quizzesJson != null) {
-      currentQuizzes = json.decode(quizzesJson);
-    }
-
-    String quizTitle = "New Quiz";
-    if (quizData.containsKey('questions') &&
-        (quizData['questions'] as List).isNotEmpty) {
-      quizTitle = quizData['questions'][0]['question'];
-      if (quizTitle.length > 50) {
-        quizTitle = "${quizTitle.substring(0, 50)}...";
+    for (final file in archive) {
+      if (file.name == 'word/document.xml') {
+        final content = utf8.decode(file.content as List<int>);
+        final document = XmlDocument.parse(content);
+        return document.findAllElements('w:t').map((node) => node.text).join(' ');
       }
     }
-
-    currentQuizzes.add({
-      'id': DateTime.now().millisecondsSinceEpoch.toString(),
-      'title': quizTitle,
-      'quizData': quizData,
-      'isCompleted': false,
-      'correctAnswers': 0,
-      'wrongAnswers': 0,
-    });
-    await prefs.setString(userQuizzesKey, json.encode(currentQuizzes));
+    return 'No readable text found in DOCX file.';
   }
 
   Future<void> generateQuiz() async {
+
+
     setState(() {
       isLoading = true;
       _generatedQuiz = null;
@@ -129,6 +111,7 @@ class _QuizViewState extends State<QuizView> {
 
     try {
       String content = "";
+
 
       if (file != null) {
         if (kIsWeb || file!.path == null) {
@@ -142,17 +125,31 @@ class _QuizViewState extends State<QuizView> {
           return;
         }
 
-        if (file!.extension?.toLowerCase() == 'pdf') {
-          final fileBytes = await File(file!.path!).readAsBytes();
+        final ext = file!.extension?.toLowerCase();
+        final path = file!.path!;
+
+        if (ext == 'pdf') {
+          final fileBytes = await File(path).readAsBytes();
           final PdfDocument document = PdfDocument(inputBytes: fileBytes);
           content = PdfTextExtractor(document).extractText();
           document.dispose();
-        } else if (file!.extension?.toLowerCase() == 'txt') {
-          content = await File(file!.path!).readAsString();
+        } else if (ext == 'txt') {
+          content = await File(path).readAsString();
+        } else if (ext == 'docx') {
+          content = await extractTextFromDocx(path);
+        } else if (ext == 'doc') {
+          _showCustomDialog(
+            title: 'Unsupported File',
+            content: 'DOC files are not supported. Please convert it to DOCX format.',
+            iconData: Icons.error_outline_rounded,
+            iconColor: Colors.red,
+          );
+          setState(() => isLoading = false);
+          return;
         } else {
           _showCustomDialog(
             title: 'Unsupported File',
-            content: 'Please upload a PDF or TXT file.',
+            content: 'Please upload a PDF, TXT, or DOCX file.',
             iconData: Icons.error_outline_rounded,
             iconColor: Colors.red,
           );
@@ -174,37 +171,47 @@ class _QuizViewState extends State<QuizView> {
 
       final prefs = await SharedPreferences.getInstance();
       final int numOfQuestions = prefs.getInt('quiz_questions_count') ?? 50;
+      final bool isArabic = _isArabicLanguage(content);
 
+      final String languageInstruction = isArabic
+          ? "اكتب الاختبار باللغة العربية فقط، وتجنب استخدام كلمات أو عبارات بالإنجليزية."
+          : "Write the quiz in English only.";
+
+// ثم استخدمها في prompt:
       final prompt = '''
-      Based on the following text, generate a quiz with $numOfQuestions questions, including a mix of multiple-choice and true/false types.
-      The output MUST be a valid JSON object. Do not include any text, markdown, or explanation before or after the JSON object.
-      Use the following exact JSON structure:
-      {
-        "questions": [
-          {
-            "question": "The question text goes here.",
-            "type": "multipleChoice",
-            "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
-            "correctAnswer": "A"
-          },
-          {
-            "question": "The true/false question text goes here.",
-            "type": "trueFalse",
-            "options": ["True", "False"],
-            "correctAnswer": "True"
-          }
-        ]
-      }
-      Text:
-      $content
-      ''';
+$languageInstruction
+
+Based on the following text, generate a quiz with $numOfQuestions questions, including a mix of multiple-choice and true/false types.
+The output MUST be a valid JSON object. Do not include any text, markdown, or explanation before or after the JSON object.
+Use the following exact JSON structure:
+{
+  "questions": [
+    {
+      "question": "The question text goes here.",
+      "type": "multipleChoice",
+      "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
+      "correctAnswer": "A"
+    },
+    {
+      "question": "The true/false question text goes here.",
+      "type": "trueFalse",
+      "options": ["True", "False"],
+      "correctAnswer": "True"
+    }
+  ]
+}
+Text:
+$content
+''';
+
+
+
 
       final geminiService = GeminiService();
       final response = await geminiService.generateContent(prompt);
 
       if (response != null && response.isNotEmpty) {
-        final cleanedResponse =
-        response.replaceAll("```json", "").replaceAll("```", "").trim();
+        final cleanedResponse = response.replaceAll("```json", "").replaceAll("```", "").trim();
         final quizData = json.decode(cleanedResponse) as Map<String, dynamic>;
 
         await _saveQuiz(quizData);
@@ -216,33 +223,76 @@ class _QuizViewState extends State<QuizView> {
             iconData: Icons.check_circle_outline_rounded,
             iconColor: Colors.green,
           );
-          setState(() {
-            _generatedQuiz = quizData;
-          });
+          setState(() => _generatedQuiz = quizData);
         }
       } else {
         _showCustomDialog(
           title: 'Failed',
-          content:
-          'Failed to generate quiz. Your daily limit may have been exceeded.',
+          content: 'Failed to generate quiz. Your daily limit may have been exceeded.',
           iconData: Icons.error_outline_rounded,
           iconColor: Colors.red,
         );
       }
     } catch (e) {
-      if (mounted) {
+      if (!mounted) return;
+
+      if (e is SocketException) {
+        _showCustomDialog(
+          title: 'Network Error',
+          content: 'Please check your internet connection and try again.',
+          iconData: Icons.wifi_off_rounded,
+          iconColor: Colors.orange,
+        );
+      } else if (e.toString().contains('quota_exceeded')) {
+        _showCustomDialog(
+          title: 'Limit Reached',
+          content: '⚠️ You have exceeded the daily free quota for the Gemini API.',
+          iconData: Icons.warning_amber_rounded,
+          iconColor: Colors.orange,
+        );
+      } else {
         _showCustomDialog(
           title: 'Error',
-          content: "An unexpected error occurred: ${e.toString()}",
+          content: "An unexpected error occurred while generating the quiz.\n$e",
           iconData: Icons.error_outline_rounded,
           iconColor: Colors.red,
         );
       }
-    } finally {
-      if (mounted) {
-        setState(() => isLoading = false);
+    }
+    finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _saveQuiz(Map<String, dynamic> quizData) async {
+    if (_userId == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final String userQuizzesKey = 'generated_quizzes_list_$_userId';
+    List<dynamic> currentQuizzes = [];
+    final String? quizzesJson = prefs.getString(userQuizzesKey);
+
+    if (quizzesJson != null) {
+      currentQuizzes = json.decode(quizzesJson);
+    }
+
+    String quizTitle = "New Quiz";
+    if (quizData.containsKey('questions') && (quizData['questions'] as List).isNotEmpty) {
+      quizTitle = quizData['questions'][0]['question'];
+      if (quizTitle.length > 50) {
+        quizTitle = "${quizTitle.substring(0, 50)}...";
       }
     }
+
+    currentQuizzes.add({
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'title': quizTitle,
+      'quizData': quizData,
+      'isCompleted': false,
+      'correctAnswers': 0,
+      'wrongAnswers': 0,
+    });
+    await prefs.setString(userQuizzesKey, json.encode(currentQuizzes));
   }
 
   void _resetView() {
@@ -253,12 +303,18 @@ class _QuizViewState extends State<QuizView> {
     });
   }
 
+  /// Detect if text contains Arabic characters (basic check)
+  bool _isArabicLanguage(String text) {
+    final arabicRegExp = RegExp(r'[\u0600-\u06FF]');
+    return arabicRegExp.hasMatch(text);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title:
-        const Text("Create a Quiz", style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
+        const Text("Create a Quiz", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -280,7 +336,7 @@ class _QuizViewState extends State<QuizView> {
               }),
               maxLines: 7,
               decoration: InputDecoration(
-               labelText:  'Paste text here...',
+                labelText: 'Paste text here...',
                 labelStyle: TextStyle(
                   color: Colors.grey[600],
                 ),
@@ -318,8 +374,7 @@ class _QuizViewState extends State<QuizView> {
                       ? const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.upload_file,
-                          size: 40, color: Colors.grey),
+                      Icon(Icons.upload_file, size: 40, color: Colors.grey),
                       SizedBox(height: 10.0),
                       Text("Click to Upload File"),
                     ],
@@ -327,8 +382,7 @@ class _QuizViewState extends State<QuizView> {
                       : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.check_circle,
-                          size: 40, color: Colors.green),
+                      const Icon(Icons.check_circle, size: 40, color: Colors.green),
                       SizedBox(height: 10.h),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8.w),
@@ -347,13 +401,11 @@ class _QuizViewState extends State<QuizView> {
             ElevatedButton.icon(
               onPressed: isLoading ? null : generateQuiz,
               icon: const Icon(Icons.quiz, color: Colors.white),
-              label: const Text("Generate Quiz",
-                  style: TextStyle(color: Colors.white)),
+              label: const Text("Generate Quiz", style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
               ),
             ),
             if (isLoading)
@@ -369,95 +421,118 @@ class _QuizViewState extends State<QuizView> {
   }
 
   Widget _buildQuizDisplaySection() {
-    final questions = (_generatedQuiz?['questions'] as List?) ?? [];
-    return Padding(
-      padding: const EdgeInsets.only(top: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Quiz Results',
-                style: TextStyle(fontSize: 20.f, fontWeight: FontWeight.bold),
-              ),
-              TextButton(
-                onPressed: _resetView,
-                child: const Text('Clear Results'),
-              )
-            ],
-          ),
-          const Divider(height: 24),
-          ListView.builder(
-            shrinkWrap: true,
+    final List questions = _generatedQuiz!['questions'] ?? [];
+
+    final bool isArabic = questions.isNotEmpty && _isArabicLanguage(questions[0]['question'] ?? '');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 24.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Generated Quiz:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded, color: Colors.blue),
+              tooltip: "Clear and Generate New",
+              onPressed: _resetView,
+            ),
+          ],
+        ),
+        Directionality(
+          textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+          child: ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
             itemCount: questions.length,
             itemBuilder: (context, index) {
-              final questionData = questions[index];
-              final String questionText = questionData['question'] ?? '';
-              final List<String> options =
-              List<String>.from(questionData['options'] ?? []);
-              final String correctAnswer = questionData['correctAnswer'] ?? '';
+              final q = questions[index];
+              final questionText = q['question'] ?? '';
+              final type = q['type'] ?? 'multipleChoice';
+              final options = List<String>.from(q['options'] ?? []);
+              final correctAnswer = q['correctAnswer'] ?? '';
 
               return Card(
+                margin: EdgeInsets.symmetric(vertical: 8.h),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                 elevation: 2,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r)),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(12.r),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Question ${index + 1}: $questionText',
-                        style: TextStyle(
-                          fontSize: 16.f,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        "${index + 1}. $questionText",
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.f),
                       ),
-                      const SizedBox(height: 12),
-                      ...options.map((option) {
-                        bool isCorrect = (questionData['type'] == 'trueFalse')
-                            ? option == correctAnswer
-                            : option.startsWith(correctAnswer);
-
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            children: [
-                              if (isCorrect)
-                                Icon(Icons.check_circle,
-                                    color: Colors.green, size: 20),
-                              if (!isCorrect)
-                                Icon(Icons.radio_button_unchecked,
-                                    color: Colors.grey, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  option,
-                                  style: TextStyle(
-                                    fontSize: 15.f,
-                                    color: isCorrect ? Colors.green : null,
-                                    fontWeight: isCorrect
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
+                      SizedBox(height: 8.h),
+                      if (type == "multipleChoice")
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: options.map((option) {
+                            final bool isCorrect = option.startsWith(correctAnswer);
+                            return Padding(
+                              padding: EdgeInsets.symmetric(vertical: 2.h),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isCorrect ? Icons.check_circle : Icons.circle_outlined,
+                                    color: isCorrect ? Colors.green : Colors.grey,
+                                    size: 20,
                                   ),
-                                ),
+                                  SizedBox(width: 8.w),
+                                  Expanded(
+                                    child: Text(
+                                      option,
+                                      style: TextStyle(
+                                        fontWeight: isCorrect ? FontWeight.bold : FontWeight.normal,
+                                        color: isCorrect ? Colors.green : Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          }).toList(),
+                        )
+                      else if (type == "trueFalse")
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: options.map((option) {
+                            final bool isCorrect = option.toLowerCase() == correctAnswer.toLowerCase();
+                            return Padding(
+                              padding: EdgeInsets.symmetric(vertical: 2.h),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isCorrect ? Icons.check_circle : Icons.circle_outlined,
+                                    color: isCorrect ? Colors.green : Colors.grey,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  Text(
+                                    option,
+                                    style: TextStyle(
+                                      fontWeight: isCorrect ? FontWeight.bold : FontWeight.normal,
+                                      color: isCorrect ? Colors.green : Colors.black87,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        )
+                      else
+                        Text("Unknown question type."),
                     ],
                   ),
                 ),
               );
             },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

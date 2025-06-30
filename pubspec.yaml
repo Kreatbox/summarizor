@@ -25,6 +25,8 @@ dependencies:
   pdfx: ^2.9.1
   dotted_border: ^2.0.0
   cupertino_icons: ^1.0.8
+  archive: ^3.4.6
+  xml: ^6.3.0
 
 dev_dependencies:
   flutter_test:

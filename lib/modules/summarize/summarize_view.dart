@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:archive/archive_io.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +26,17 @@ class _SummarizeViewState extends State<SummarizeView> {
   bool isLoading = false;
   String? responseText;
   String? _userId;
+  String language = 'en'; // متغير لتخزين لغة النص الحالي
 
   @override
   void initState() {
     super.initState();
     _getCurrentUserId();
+  }
+
+  String detectLanguage(String text) {
+    final arabicRegex = RegExp(r'[\u0600-\u06FF]');
+    return arabicRegex.hasMatch(text) ? 'ar' : 'en';
   }
 
   @override
@@ -46,17 +54,17 @@ class _SummarizeViewState extends State<SummarizeView> {
     }
   }
 
-  void _showCustomDialog(
-      {required String title,
-        required String content,
-        required IconData iconData,
-        required Color iconColor}) {
+  void _showCustomDialog({
+    required String title,
+    required String content,
+    required IconData iconData,
+    required Color iconColor,
+  }) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
           icon: Icon(iconData, color: iconColor, size: 48),
           title: Text(title, textAlign: TextAlign.center),
           content: Text(content, textAlign: TextAlign.center),
@@ -65,8 +73,7 @@ class _SummarizeViewState extends State<SummarizeView> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
               ),
               child: const Text('OK', style: TextStyle(color: Colors.white)),
               onPressed: () {
@@ -81,7 +88,7 @@ class _SummarizeViewState extends State<SummarizeView> {
 
   void pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowedExtensions: ['pdf', 'txt'],
+      allowedExtensions: ['pdf', 'txt', 'docx'], // دعم docx مضاف هنا
       type: FileType.custom,
     );
 
@@ -95,15 +102,33 @@ class _SummarizeViewState extends State<SummarizeView> {
   }
 
   Future<String> extractTextFromFile(String path) async {
-    final extension = file!.extension;
+    final extension = file!.extension?.toLowerCase();
+
     if (extension == 'pdf') {
       final bytes = await File(path).readAsBytes();
       final document = PdfDocument(inputBytes: bytes);
       final text = PdfTextExtractor(document).extractText();
       document.dispose();
       return text;
-    } else {
+    } else if (extension == 'txt') {
       return await File(path).readAsString();
+    } else if (extension == 'docx') {
+      final bytes = File(path).readAsBytesSync();
+      final archive = ZipDecoder().decodeBytes(bytes);
+      final documentFile = archive.files.firstWhere(
+            (file) => file.name == 'word/document.xml',
+        orElse: () => throw Exception('Invalid docx file structure'),
+      );
+
+      final content = utf8.decode(documentFile.content as List<int>);
+      final docText = content
+          .replaceAll(RegExp(r'<w:.*?>|</w:.*?>'), '')
+          .replaceAll(RegExp(r'<[^>]+>'), '')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim();
+      return docText;
+    } else {
+      throw UnsupportedError('Unsupported file type: $extension');
     }
   }
 
@@ -116,8 +141,7 @@ class _SummarizeViewState extends State<SummarizeView> {
 
     if (summariesJson != null) {
       final List<dynamic> decodedList = json.decode(summariesJson);
-      summaries =
-          decodedList.map((item) => Map<String, String>.from(item)).toList();
+      summaries = decodedList.map((item) => Map<String, String>.from(item)).toList();
     }
 
     summaries.add({
@@ -132,10 +156,11 @@ class _SummarizeViewState extends State<SummarizeView> {
   Future<void> generateSummary() async {
     if (_textController.text.isEmpty && file == null) {
       _showCustomDialog(
-          title: 'Input Required',
-          content: 'Please paste text or upload a file first.',
-          iconData: Icons.warning_amber_rounded,
-          iconColor: Colors.orange);
+        title: 'Input Required',
+        content: 'Please paste text or upload a file first.',
+        iconData: Icons.warning_amber_rounded,
+        iconColor: Colors.orange,
+      );
       return;
     }
 
@@ -149,19 +174,15 @@ class _SummarizeViewState extends State<SummarizeView> {
         contentToSummarize = await extractTextFromFile(file!.path!);
       }
 
-      final prefs = await SharedPreferences.getInstance();
-      final String summaryLength =
-          prefs.getString('summary_length') ?? 'Medium';
-      String promptInstruction = "Provide a concise and clear summary";
+      final detectedLang = detectLanguage(contentToSummarize);
+      language = detectedLang; // حفظ اللغة في المتغير العام
 
-      if (summaryLength == 'Short') {
-        promptInstruction = "Provide a very short, one-paragraph summary";
-      } else if (summaryLength == 'Long') {
-        promptInstruction = "Provide a detailed and comprehensive summary";
+      String prompt;
+      if (language == 'ar') {
+        prompt = "قدّم ملخصًا تفصيليًا وشاملًا للنص التالي:\n\n$contentToSummarize";
+      } else {
+        prompt = "Provide a detailed and comprehensive summary of the following text:\n\n$contentToSummarize";
       }
-
-      final prompt =
-          '$promptInstruction of the following text:\n\n$contentToSummarize';
 
       final geminiService = GeminiService();
       final response = await geminiService.generateContent(prompt);
@@ -172,22 +193,44 @@ class _SummarizeViewState extends State<SummarizeView> {
         });
         await _saveSummary(response);
         _showCustomDialog(
-            title: 'Success',
-            content: 'Summary generated and saved successfully!',
-            iconData: Icons.check_circle_outline_rounded,
-            iconColor: Colors.green);
+          title: 'Success',
+          content: language == 'ar'
+              ? 'تم إنشاء الملخص وحفظه بنجاح!'
+              : 'Summary generated and saved successfully!',
+          iconData: Icons.check_circle_outline_rounded,
+          iconColor: Colors.green,
+        );
       } else {
-        setState(() {
-          responseText =
-          '⚠️ You may have exceeded your free daily limit for Gemini API usage or an error occurred.';
-        });
+        _showCustomDialog(
+          title: 'Limit Reached',
+          content: '⚠️ You may have exceeded your free daily limit for Gemini API usage.',
+          iconData: Icons.warning_amber_rounded,
+          iconColor: Colors.orange,
+        );
       }
     } catch (e) {
-      _showCustomDialog(
+      if (e.toString().contains('quota_exceeded')) {
+        _showCustomDialog(
+          title: 'Limit Reached',
+          content: '⚠️ You have exceeded your free daily limit for Gemini API usage.',
+          iconData: Icons.lock_outline_rounded,
+          iconColor: Colors.red,
+        );
+      } else if (e is SocketException) {
+        _showCustomDialog(
+          title: 'Network Error',
+          content: 'Please check your internet connection and try again.',
+          iconData: Icons.wifi_off_rounded,
+          iconColor: Colors.orange,
+        );
+      } else {
+        _showCustomDialog(
           title: 'Error',
-          content: 'An error occurred while reading or summarizing the file.',
+          content: 'An unexpected error occurred while summarizing.',
           iconData: Icons.error_outline_rounded,
-          iconColor: Colors.red);
+          iconColor: Colors.red,
+        );
+      }
     } finally {
       setState(() => isLoading = false);
     }
@@ -198,7 +241,7 @@ class _SummarizeViewState extends State<SummarizeView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Summarize Text or File",
-            style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -208,9 +251,11 @@ class _SummarizeViewState extends State<SummarizeView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Paste text below or upload a PDF/TXT file to get a summary.',
+              'Paste text below or upload a PDF/TXT/DOCX file to get a summary.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16.f,),
+              style: TextStyle(
+                fontSize: 16.f,
+              ),
             ),
             SizedBox(height: 20.h),
             TextField(
@@ -231,8 +276,7 @@ class _SummarizeViewState extends State<SummarizeView> {
                 labelStyle: TextStyle(
                   color: Colors.grey[600],
                 ),
-                hintText:
-                'You can type or paste any text you want to summarize...',
+                hintText: 'You can type or paste any text you want to summarize...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
@@ -268,8 +312,7 @@ class _SummarizeViewState extends State<SummarizeView> {
                         ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.upload_file,
-                            size: 50, color: Colors.grey),
+                        Icon(Icons.upload_file, size: 50, color: Colors.grey),
                         SizedBox(height: 10.h),
                         const Text("Click to upload a file"),
                       ],
@@ -277,12 +320,10 @@ class _SummarizeViewState extends State<SummarizeView> {
                         : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.check_circle,
-                            size: 50, color: Colors.green),
+                        const Icon(Icons.check_circle, size: 50, color: Colors.green),
                         SizedBox(height: 10.h),
                         Padding(
-                          padding:
-                          EdgeInsets.symmetric(horizontal: 8.0.h),
+                          padding: EdgeInsets.symmetric(horizontal: 8.0.h),
                           child: Text(
                             "Uploaded: ${file!.name}",
                             textAlign: TextAlign.center,
@@ -306,48 +347,52 @@ class _SummarizeViewState extends State<SummarizeView> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
               ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 30.h),
             if (isLoading)
               const Center(child: CircularProgressIndicator())
             else if (responseText != null)
               Card(
                 color: AppColors.aqua10,
                 elevation: 4,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                 child: Padding(
                   padding: 16.p,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Generated Summary:",
-                        style: TextStyle(
+                      Directionality(
+                        textDirection: language == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+                        child: Text("Generated Summary:",
+                          style: TextStyle(
                             fontSize: 18.f,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary),
+                            color: AppColors.primary,
+                          ),
+                        ),
                       ),
                       SizedBox(height: 10.h),
-                      Text(responseText!,
-                          style: TextStyle(height: 1.5.h, fontSize: 16.f)),
+                      Directionality(
+                        textDirection: language == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+                        child: Text(
+                          responseText!,
+                          style: TextStyle(height: 1.5.h, fontSize: 16.f),
+                        ),
+                      ),
                       SizedBox(height: 20.h),
                       ElevatedButton.icon(
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: responseText!));
                           _showCustomDialog(
-                              title: 'Copied',
-                              content:
-                              'The summary has been copied to your clipboard.',
-                              iconData: Icons.copy_all_rounded,
-                              iconColor: AppColors.primary);
+                            title:  'Copied',
+                            content:  'The summary has been copied to your clipboard.',
+                            iconData: Icons.copy_all_rounded,
+                            iconColor: AppColors.primary,
+                          );
                         },
                         icon: const Icon(Icons.copy),
-                        label: const Text("Copy Summary"),
+                        label: Text( "Copy Summary"),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blueGrey,
                           foregroundColor: Colors.white,
