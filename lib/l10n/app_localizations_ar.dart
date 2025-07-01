@@ -183,7 +183,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get guestUser => 'مستخدم زائر';
 
   @override
-  String get loginSuccess => 'تم تسجيل الدخول بنجاح! جارٍ التوجيه...';
+  String get loginSuccess => 'تم تسجيل الدخول بنجاح! ';
 
   @override
   String get loginFailed => 'فشل تسجيل الدخول';
@@ -506,4 +506,7 @@ class AppLocalizationsAr extends AppLocalizations {
       Object jsonStructure, Object content) {
     return '$languageInstruction\n\nبناءً على النص التالي، قم بإنشاء اختبار من $numOfQuestions سؤال، يتضمن مزيجاً من أنواع الاختيار من متعدد والصواب والخطأ.\nيجب أن يكون الناتج كائن JSON صالح. لا تقم بتضمين أي نص أو markdown أو شرح قبل أو بعد كائن JSON.\nاستخدم بنية JSON الدقيقة التالية:\n$jsonStructure\nالنص:\n$content';
   }
+
+  @override
+  String get welcomeBack => 'أهلاً بعودتك! يتم توجيهك الآن للصفحة الرئيسية.';
 }

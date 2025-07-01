@@ -32,6 +32,7 @@ class _LogInViewState extends State<LogInView> {
     required String content,
     required IconData iconData,
     required Color iconColor,
+    VoidCallback? onOkPressed,
   }) {
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
@@ -55,6 +56,9 @@ class _LogInViewState extends State<LogInView> {
               child: Text(l10n.ok, style: const TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop();
+                if (onOkPressed != null) {
+                  onOkPressed();
+                }
               },
             ),
           ],
@@ -79,7 +83,16 @@ class _LogInViewState extends State<LogInView> {
           await prefs.setString('user_token', userToken);
           if (!mounted) return;
 
-          Navigator.pushReplacementNamed(context, '/home');
+          final l10n = AppLocalizations.of(context)!;
+          _showCustomDialog(
+            title: l10n.loginSuccess,
+            content: l10n.welcomeBack,
+            iconData: Icons.check_circle_outline_rounded,
+            iconColor: Colors.green,
+            onOkPressed: () {
+              Navigator.pushReplacementNamed(context, '/home');
+            },
+          );
         }
       } catch (e) {
         if (mounted) {
@@ -137,7 +150,8 @@ class _LogInViewState extends State<LogInView> {
                     ),
                     SizedBox(height: 40.h),
                     _isLoading
-                        ? const CircularProgressIndicator(color: AppColors.primary)
+                        ? const CircularProgressIndicator(
+                        color: AppColors.primary)
                         : SizedBox(
                       width: double.infinity,
                       height: 50.h,
@@ -189,8 +203,8 @@ class _LogInViewState extends State<LogInView> {
         errorStyle: const TextStyle(color: Colors.red),
         labelText: l10n.email,
         labelStyle: Theme.of(context).textTheme.labelLarge,
-        errorBorder:
-        const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+        errorBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red)),
         filled: true,
         fillColor: const Color(0x1A6BB5B8),
         border: OutlineInputBorder(

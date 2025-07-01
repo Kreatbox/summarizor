@@ -419,7 +419,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Login successful! Redirecting...'**
+  /// **'Login successful!'**
   String get loginSuccess;
 
   /// No description provided for @loginFailed.
@@ -959,7 +959,7 @@ abstract class AppLocalizations {
   /// No description provided for @geminiPromptTemplateArabic.
   ///
   /// In en, this message translates to:
-  /// **'قدّم ملخصًا تفصيليًا وشاملًا للنص التالي:'**
+  /// **'قدّم ملخصاً تفصيلياً وشاملاً للنص التالي:'**
   String get geminiPromptTemplateArabic;
 
   /// No description provided for @geminiQuizInstructionEnglish.
@@ -974,6 +974,12 @@ abstract class AppLocalizations {
   /// **'{languageInstruction}\n\nBased on the following text, generate a quiz with {numOfQuestions} questions, including a mix of multiple-choice and true/false types.\nThe output MUST be a valid JSON object. Do not include any text, markdown, or explanation before or after the JSON object.\nUse the following exact JSON structure:\n{jsonStructure}\nText:\n{content}'**
   String geminiQuizPrompt(Object languageInstruction, Object numOfQuestions,
       Object jsonStructure, Object content);
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back! You are now being redirected to the home page.'**
+  String get welcomeBack;
 }
 
 class _AppLocalizationsDelegate

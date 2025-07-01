@@ -53,7 +53,7 @@
     "version": "Version 1.0.0",
     "hello": "Hello,",
     "guestUser": "Guest User",
-    "loginSuccess": "Login successful! Redirecting...",
+    "loginSuccess": "Login successful!",
     "loginFailed": "Login Failed",
     "anUnknownErrorOccurred": "An unknown error occurred.",
     "invalidCredentials": "No user found for that email or password is incorrect.",
@@ -216,7 +216,7 @@
         }
     },
     "geminiPromptTemplateEnglish": "Provide a detailed and comprehensive summary of the following text:",
-    "geminiPromptTemplateArabic": "قدّم ملخصًا تفصيليًا وشاملًا للنص التالي:",
+    "geminiPromptTemplateArabic": "قدّم ملخصاً تفصيلياً وشاملاً للنص التالي:",
     "geminiQuizInstructionEnglish": "Write the quiz in English only.",
     "geminiQuizPrompt": "{languageInstruction}\n\nBased on the following text, generate a quiz with {numOfQuestions} questions, including a mix of multiple-choice and true/false types.\nThe output MUST be a valid JSON object. Do not include any text, markdown, or explanation before or after the JSON object.\nUse the following exact JSON structure:\n{jsonStructure}\nText:\n{content}",
     "@geminiQuizPrompt": {
@@ -226,7 +226,8 @@
             "jsonStructure": {},
             "content": {}
         }
-    }
+    },
+    "welcomeBack": "Welcome back! You are now being redirected to the home page."
 }
 
 

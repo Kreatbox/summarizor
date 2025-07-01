@@ -183,7 +183,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guestUser => 'Guest User';
 
   @override
-  String get loginSuccess => 'Login successful! Redirecting...';
+  String get loginSuccess => 'Login successful!';
 
   @override
   String get loginFailed => 'Login Failed';
@@ -504,7 +504,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get geminiPromptTemplateArabic =>
-      'قدّم ملخصًا تفصيليًا وشاملًا للنص التالي:';
+      'قدّم ملخصاً تفصيلياً وشاملاً للنص التالي:';
 
   @override
   String get geminiQuizInstructionEnglish => 'Write the quiz in English only.';
@@ -514,4 +514,8 @@ class AppLocalizationsEn extends AppLocalizations {
       Object jsonStructure, Object content) {
     return '$languageInstruction\n\nBased on the following text, generate a quiz with $numOfQuestions questions, including a mix of multiple-choice and true/false types.\nThe output MUST be a valid JSON object. Do not include any text, markdown, or explanation before or after the JSON object.\nUse the following exact JSON structure:\n$jsonStructure\nText:\n$content';
   }
+
+  @override
+  String get welcomeBack =>
+      'Welcome back! You are now being redirected to the home page.';
 }

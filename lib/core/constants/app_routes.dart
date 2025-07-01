@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:summarizor/modules/Onboarding/onboarding_view.dart';
 import 'package:summarizor/modules/sign_up/sign_up_view.dart';
 import 'package:summarizor/modules/log_in/log_in_view.dart';
-import 'package:summarizor/modules/home/homes_view.dart';
+import 'package:summarizor/modules/home/home_view.dart';
 import 'package:summarizor/modules/summarize/summarize_view.dart';
 import 'package:summarizor/modules/quiz/quiz_view.dart';
 import 'package:summarizor/modules/texts_summary/texts_and_documents_summary_view.dart';
@@ -24,9 +24,6 @@ class AppRoute {
   static const String doQuizzes = "/do_quizzes";
   static const String takeQuiz = "/take_quiz";
   static const String splash = "/splash";
-
-
-
   static const String settings = "/settings";
 
   static final Map<String, WidgetBuilder> routes = {
